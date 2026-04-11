@@ -1,6 +1,5 @@
 name: multi_servidor
-description: A new Flutter project.
-
+description: App de streaming multi-servidor
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -12,20 +11,18 @@ dependencies:
 dependencies:
   flutter:
     sdk: flutter
-  adaptive_theme: ^3.6.0
-  video_player: ^2.8.2
+  adaptive_theme: ^3.7.2
+  video_player: ^2.8.6
   chewie: ^1.7.5
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.2
   http: ^1.1.0
   google_fonts: ^6.1.0
   cached_network_image: ^3.3.0
-  flutter_screenutil: ^5.9.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.1
+                            flutter_test:
+                                sdk: flutter
+                                flutter_lints: ^4.0.0
 
-flutter:
-  uses-material-design: true
+                                flutter:                                   uses-material-design: true
