@@ -1,27 +1,38 @@
-name: multi_servidor
-description: App de streaming multi-servidor
-publish_to: 'none'
-version: 1.0.0+1
+name: 📱 Build APK
 
-environment:
-  sdk: '>=3.0.0 <4.0.0'
+on:
+  workflow_dispatch:
 
-dependencies:
-  flutter:
-    sdk: flutter
-  adaptive_theme: ^3.7.2
-  video_player: ^2.8.6
-  chewie: ^1.7.5
-  flutter_secure_storage: ^9.0.0
-  shared_preferences: ^2.2.2
-  http: ^1.1.0
-  google_fonts: ^6.1.0
-  cached_network_image: ^3.3.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.1
-
-flutter:
-  uses-material-design: true
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    # ✅ Forçar uso do Node.js 24 (elimina o aviso)
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Garante histórico completo do Git
+      
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true  # ✅ Cache para build mais rápido
+      
+      - name: 📦 Instalar dependências
+        run: flutter pub get
+      
+      - name: 🔨 Compilar APK
+        run: flutter build apk --release --split-per-abi
+      
+      - name: 📤 Upload do APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-servidor-apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          retention-days: 7  # APK disponível por 7 dias
