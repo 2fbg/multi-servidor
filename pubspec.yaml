@@ -1,4 +1,4 @@
-name: 📱 Build APK
+name: Multi-Servidor
 
 on:
   workflow_dispatch:
@@ -12,25 +12,25 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
-      - name: 📥 Checkout do código
+      - name: Checkout do código
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Garante histórico completo do Git
       
-      - name: 🎯 Setup Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
           cache: true  # ✅ Cache para build mais rápido
       
-      - name: 📦 Instalar dependências
+      - name: Instalar dependências
         run: flutter pub get
       
-      - name: 🔨 Compilar APK
+      - name: Compilar APK
         run: flutter build apk --release --split-per-abi
       
-      - name: 📤 Upload do APK
+      - name: multi-servidor 
         uses: actions/upload-artifact@v4
         with:
           name: multi-servidor-apk
