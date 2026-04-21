@@ -22,13 +22,13 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
-          cache: true  # Cache para build mais rápido
+          cache: true
       
       - name: Instalar dependências
         run: flutter pub get
       
       - name: Compilar APK
-        run: flutter build apk --release --split-per-abi
+        run: flutter build
       
       - name: multi-servidor 
         uses: actions/upload-artifact@v4
