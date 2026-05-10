@@ -1,47 +1,20 @@
-name: 📱 Criar APK
+name: multi_servidor
+description: A new Flutter project.
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ main ]
+publish_to: 'none'
 
-jobs:
-  build-apk:
-    runs-on: ubuntu-latest
+version: 1.0.0+1
 
-    steps:
-      - name: 📥 Checkout do código
-        uses: actions/checkout@v4
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+environment:
+  sdk: '>=3.0.0 <4.0.0'
 
-      - name: ☕ Instalar Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+dependencies:
+  flutter:
+    sdk: flutter
 
-      - name: 🐦 Instalar Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
-          cache: true
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
-      - name: 🩺 Flutter Doctor
-        run: flutter doctor -v
-
-      - name: 📦 Instalar dependências
-        run: flutter pub get
-
-      - name: 🔍 Analisar código
-        run: flutter analyze || true
-
-      - name: 🏗 Criar APK Release
-        run: flutter build apk --release
-
-      - name: 📤 Enviar APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+flutter:
+  uses-material-design: true
