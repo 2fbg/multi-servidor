@@ -7,8 +7,8 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  
- dependencies:
+
+dependencies:
   flutter:
     sdk: flutter
   adaptive_theme: ^3.4.0
