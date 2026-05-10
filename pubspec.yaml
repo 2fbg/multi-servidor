@@ -1,38 +1,45 @@
-name: Multi-Servidor
+name: 📱 Criar APK
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-    
-    #Forçar uso do Node.js 24 (elimina o aviso)
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    
+
     steps:
-      - name: Checkout do código
+      - name: 📥 Checkout do código
         uses: actions/checkout@v4
+
+      - name: ☕ Instalar Java 17
+        uses: actions/setup-java@v4
         with:
-          fetch-depth: 0  # Garante histórico completo do Git
-      
-      - name: Setup Flutter
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🐦 Instalar Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
           cache: true
-      
-      - name: Instalar dependências
+
+      - name: 🩺 Flutter Doctor
+        run: flutter doctor -v
+
+      - name: 📦 Instalar dependências
         run: flutter pub get
-      
-      - name: Compilar APK
-        run: flutter build
-      
-      - name: multi-servidor 
+
+      - name: 🔍 Analisar código
+        run: flutter analyze || true
+
+      - name: 🏗 Criar APK Release
+        run: flutter build apk --release
+
+      - name: 📤 Enviar APK
         uses: actions/upload-artifact@v4
         with:
-          name: multi-servidor
-          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-          retention-days: 7  # APK disponível por 7 dias
+          name: apk-release
+          path: build/app/outputs/flutter-apk/app-release.apk
