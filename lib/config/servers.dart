@@ -1,37 +1,31 @@
-// lib/config/servers.dart
+class Server {
+  final String name;
+  final String baseUrl;
+  final String username;
+  final String password;
 
-const List<Map<String, dynamic>> servers = [
-  {
-    'name': 'VLOG',
-    'baseUrl': 'http://vlogmk.de',
-  },
-  {
-    'name': 'LUB TV',
-    'baseUrl': 'http://triimundial.shop',
-  },
-  {
-    'name': 'CINELON21',
-    'baseUrl': 'http://cinelontv.work',
-  },
-  {
-    'name': 'TANNIX',
-    'baseUrl': 'http://zeip.fun',
-  },
-  {
-    'name': 'CB6000',
-    'baseUrl': 'http://kraewert.top',
-  },
-  {
-    'name': 'MK21 TV',
-    'baseUrl': 'http://mk21.uk',
-  },
-  {
-    'name': 'NOVATV',
-    'baseUrl': 'http://novatv.news',
-  },
-];
+  Server({
+    required this.name,
+    required this.baseUrl,
+    required this.username,
+    required this.password,
+  });
+}
 
-// Função para gerar a URL da playlist M3U
-String getM3UUrl(String baseUrl, String username, String password) {
-  return '$baseUrl/get.php?username=$username&password=$password&type=m3u_plus&output=mpegts';
+class ServerConfig {
+  static List<Server> buildServers(String user, String pass) {
+    return [
+      Server(name: 'VLOG', baseUrl: 'http://vlogmk.de', username: user, password: pass),
+      Server(name: 'LUB TV', baseUrl: 'http://triimundial.shop', username: user, password: pass),
+      Server(name: 'CINELON21', baseUrl: 'http://cinelontv.work', username: user, password: pass),
+      Server(name: 'TANNIX', baseUrl: 'http://zeip.fun', username: user, password: pass),
+      Server(name: 'CB6000', baseUrl: 'http://kraewert.top', username: user, password: pass),
+      Server(name: 'MK21 TV', baseUrl: 'http://mk21.uk', username: user, password: pass),
+      Server(name: 'NOVATV', baseUrl: 'http://novatv.news', username: user, password: pass),
+    ];
+  }
+
+  static String buildM3UUrl(Server server) {
+    return '${server.baseUrl}/get.php?username=${server.username}&password=${server.password}&type=m3u_plus&output=mpegts';
+  }
 }
