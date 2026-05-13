@@ -1,38 +1,21 @@
-name: 📱 Build APK
+name: multi_servidor
+description: App simples multi servidor
+publish_to: 'none'
 
-on:
-  workflow_dispatch:
+version: 1.0.0+1
 
-  jobs:
-    build-apk:
-        runs-on: ubuntu-latest
-            
-                # ✅ Forçar uso do Node.js 24 (elimina o aviso)
-                    env:
-                          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-                              
-                                  steps:
-                                        - name: 📥 Checkout do código
-                                                uses: actions/checkout@v4
-                                                        with:
-                                                                  fetch-depth: 0  # Garante histórico completo do Git
-                                                                        
-                                                                              - name: 🎯 Setup Flutter
-                                                                                      uses: subosito/flutter-action@v2
-                                                                                              with:
-                                                                                                        flutter-version: '3.19.0'
-                                                                                                                  channel: 'stable'
-                                                                                                                            cache: true  # ✅ Cache para build mais rápido
-                                                                                                                                  
-                                                                                                                                        - name: 📦 Instalar dependências
-                                                                                                                                                run: flutter pub get
-                                                                                                                                                      
-                                                                                                                                                            - name: 🔨 Compilar APK
-                                                                                                                                                                    run: flutter build apk --release --split-per-abi
-                                                                                                                                                                          
-                                                                                                                                                                                - name: 📤 Upload do APK
-                                                                                                                                                                                        uses: actions/upload-artifact@v4
-                                                                                                                                                                                                with:
-                                                                                                                                                                                                          name: multi-servidor-apk
-                                                                                                                                                                                                                    path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-                                                                                                                                                                                                                              retention-days: 7  # APK disponível por 7 dias 
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  flutter_secure_storage: ^9.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
