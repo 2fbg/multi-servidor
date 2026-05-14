@@ -26,8 +26,11 @@ class M3UParser {
     final lines = const LineSplitter().convert(content);
     final channels = <Channel>[];
 
-    String? currentName;
+    String? currentTitle;
     String? currentLogo;
+    String? currentGroup;
+
+    var index = 0;
 
     for (final rawLine in lines) {
       final line = rawLine.trim();
@@ -37,26 +40,32 @@ class M3UParser {
       }
 
       if (line.startsWith('#EXTINF')) {
-        currentName = _extractName(line);
+        currentTitle = _extractTitle(line);
         currentLogo = _extractAttribute(line, 'tvg-logo');
+        currentGroup = _extractAttribute(line, 'group-title');
       } else if (line.startsWith('http')) {
+        index++;
+
         channels.add(
           Channel(
-            name: currentName ?? 'Canal',
-            url: line,
-            logo: currentLogo ?? '',
+            id: index.toString(),
+            title: currentTitle ?? 'Canal $index',
+            group: currentGroup,
+            logo: currentLogo,
+            streamUrl: line,
           ),
         );
 
-        currentName = null;
+        currentTitle = null;
         currentLogo = null;
+        currentGroup = null;
       }
     }
 
     return channels;
   }
 
-  static String _extractName(String line) {
+  static String _extractTitle(String line) {
     final commaIndex = line.lastIndexOf(',');
 
     if (commaIndex != -1 && commaIndex < line.length - 1) {
