@@ -1,3 +1,59 @@
+#!/usr/bin/env bash
+set -e
+
+REPO_URL="https://github.com/2fbg/multi-servidor"
+
+echo "== Multi Servidor - correção TV Box / M3U MPEGTS =="
+
+if [ ! -f "pubspec.yaml" ]; then
+  echo "pubspec.yaml não encontrado. Clonando repositório..."
+  git clone "$REPO_URL" multi-servidor
+  cd multi-servidor
+fi
+
+echo "Pasta atual:"
+pwd
+
+echo "Criando backup da pasta lib..."
+mkdir -p backup_fix_tvbox
+cp -R lib "backup_fix_tvbox/lib_$(date +%Y%m%d_%H%M%S)" || true
+
+echo "Adicionando dependências necessárias..."
+flutter pub add http shared_preferences video_player chewie
+
+echo "Garantindo permissão de internet e HTTP claro no Android..."
+MANIFEST="android/app/src/main/AndroidManifest.xml"
+
+if [ -f "$MANIFEST" ]; then
+python3 - <<'PY'
+from pathlib import Path
+
+p = Path("android/app/src/main/AndroidManifest.xml")
+txt = p.read_text()
+
+if '<uses-permission android:name="android.permission.INTERNET"' not in txt:
+    txt = txt.replace(
+        '<manifest',
+        '<manifest'
+    )
+    insert_pos = txt.find('>') + 1
+    txt = txt[:insert_pos] + '\n    <uses-permission android:name="android.permission.INTERNET"/>' + txt[insert_pos:]
+
+if 'usesCleartextTraffic' not in txt:
+    txt = txt.replace(
+        '<application',
+        '<application android:usesCleartextTraffic="true"'
+    )
+
+p.write_text(txt)
+PY
+else
+  echo "Manifest não encontrado em $MANIFEST"
+fi
+
+mkdir -p lib
+
+cat > lib/main.dart <<'DART'
 import 'dart:async';
 import 'dart:convert';
 
@@ -66,11 +122,8 @@ class PlaylistSource {
   }
 
   String buildUrl(String loginUser, String loginPass) {
-    final u =
-        customUser?.trim().isNotEmpty == true ? customUser!.trim() : loginUser;
-    final p = customPassword?.trim().isNotEmpty == true
-        ? customPassword!.trim()
-        : loginPass;
+    final u = customUser?.trim().isNotEmpty == true ? customUser!.trim() : loginUser;
+    final p = customPassword?.trim().isNotEmpty == true ? customPassword!.trim() : loginPass;
 
     var t = urlTemplate.trim();
 
@@ -196,21 +249,21 @@ class M3uService {
           final request = http.Request('GET', uri);
           request.headers.addAll(iptvHeaders());
 
-          final streamed =
-              await client.send(request).timeout(const Duration(seconds: 75));
+          final streamed = await client.send(request).timeout(const Duration(seconds: 75));
           diag.statusCode = streamed.statusCode;
 
-          final bytes = await streamed.stream.fold<List<int>>(<int>[], (a, b) {
-            a.addAll(b);
-            return a;
-          }).timeout(const Duration(seconds: 120));
+          final bytes = await streamed.stream
+              .fold<List<int>>(<int>[], (a, b) {
+                a.addAll(b);
+                return a;
+              })
+              .timeout(const Duration(seconds: 120));
 
           diag.responseBytes = bytes.length;
 
           final body = utf8.decode(bytes, allowMalformed: true);
           diag.preview = body.length > 1200 ? body.substring(0, 1200) : body;
-          diag.extinfCount =
-              RegExp(r'#EXTINF', caseSensitive: false).allMatches(body).length;
+          diag.extinfCount = RegExp(r'#EXTINF', caseSensitive: false).allMatches(body).length;
           diag.foundExtinf = diag.extinfCount > 0;
 
           if (streamed.statusCode != 200) {
@@ -219,8 +272,7 @@ class M3uService {
           }
 
           if (!diag.foundExtinf) {
-            diag.error =
-                'Resposta não contém #EXTINF. Pode ser HTML, bloqueio ou login inválido.';
+            diag.error = 'Resposta não contém #EXTINF. Pode ser HTML, bloqueio ou login inválido.';
             continue;
           }
 
@@ -264,8 +316,7 @@ class M3uService {
         continue;
       }
 
-      if (extinf != null &&
-          (line.startsWith('http://') || line.startsWith('https://'))) {
+      if (extinf != null && (line.startsWith('http://') || line.startsWith('https://'))) {
         final title = extractTitle(extinf!);
         final group = extractAttr(extinf!, 'group-title').trim().isEmpty
             ? 'Sem categoria'
@@ -308,8 +359,7 @@ class M3uService {
     final u = url.toLowerCase();
     final joined = '$t $g $u';
 
-    final seriesPattern = RegExp(
-        r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)');
+    final seriesPattern = RegExp(r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)');
     if (u.contains('/series/') ||
         seriesPattern.hasMatch(joined) ||
         g.contains('serie') ||
@@ -351,8 +401,7 @@ class MultiServidorApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: kBg,
         colorScheme: const ColorScheme.dark(primary: kRed),
-        appBarTheme:
-            const AppBarTheme(backgroundColor: kBg, foregroundColor: kText),
+        appBarTheme: const AppBarTheme(backgroundColor: kBg, foregroundColor: kText),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: kPanel2,
@@ -430,8 +479,7 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(24),
             child: Card(
               color: kPanel,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -440,13 +488,9 @@ class _LoginPageState extends State<LoginPage> {
                     const Icon(Icons.live_tv, color: kRed, size: 54),
                     const SizedBox(height: 12),
                     const Text('Multi Servidor',
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 24),
-                    TextField(
-                        controller: userCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Usuário')),
+                    TextField(controller: userCtrl, decoration: const InputDecoration(labelText: 'Usuário')),
                     const SizedBox(height: 12),
                     TextField(
                       controller: passCtrl,
@@ -454,8 +498,7 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: InputDecoration(
                         labelText: 'Senha',
                         suffixIcon: IconButton(
-                          icon: Icon(
-                              hide ? Icons.visibility : Icons.visibility_off),
+                          icon: Icon(hide ? Icons.visibility : Icons.visibility_off),
                           onPressed: () => setState(() => hide = !hide),
                         ),
                       ),
@@ -524,8 +567,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> saveExtraSources() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('extra_sources',
-        jsonEncode(extraSources.map((e) => e.toJson()).toList()));
+    await prefs.setString('extra_sources', jsonEncode(extraSources.map((e) => e.toJson()).toList()));
   }
 
   Future<void> loadLists() async {
@@ -549,12 +591,9 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() => loading = false);
   }
 
-  List<StreamItem> get liveItems =>
-      items.where((e) => e.kind == ItemKind.live).toList();
-  List<StreamItem> get movieItems =>
-      items.where((e) => e.kind == ItemKind.movie).toList();
-  List<StreamItem> get seriesItems =>
-      items.where((e) => e.kind == ItemKind.series).toList();
+  List<StreamItem> get liveItems => items.where((e) => e.kind == ItemKind.live).toList();
+  List<StreamItem> get movieItems => items.where((e) => e.kind == ItemKind.movie).toList();
+  List<StreamItem> get seriesItems => items.where((e) => e.kind == ItemKind.series).toList();
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
@@ -575,8 +614,7 @@ class _HomePageState extends State<HomePage> {
             child: ListView(
               children: [
                 const Text('Diagnóstico da lista',
-                    style:
-                        TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 for (final d in diagnostics)
                   Card(
@@ -599,9 +637,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Fechar')),
+                  child: TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar')),
                 )
               ],
             ),
@@ -664,10 +700,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               Icon(icon, size: 28),
               const SizedBox(width: 14),
-              Expanded(
-                  child: Text(label,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold))),
+              Expanded(child: Text(label, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
               Text('$count'),
             ],
           ),
@@ -684,14 +717,10 @@ class _HomePageState extends State<HomePage> {
           child: ListView(
             padding: const EdgeInsets.all(18),
             children: [
-              navButton(
-                  'CANAIS', Icons.live_tv, Section.live, liveItems.length),
-              navButton(
-                  'FILMES', Icons.movie, Section.movies, movieItems.length),
-              navButton('SÉRIES', Icons.video_library, Section.series,
-                  seriesItems.length),
-              navButton('LISTAS', Icons.playlist_play, Section.lists,
-                  extraSources.length),
+              navButton('CANAIS', Icons.live_tv, Section.live, liveItems.length),
+              navButton('FILMES', Icons.movie, Section.movies, movieItems.length),
+              navButton('SÉRIES', Icons.video_library, Section.series, seriesItems.length),
+              navButton('LISTAS', Icons.playlist_play, Section.lists, extraSources.length),
               navButton('AJUSTES', Icons.settings, Section.settings, 0),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 7),
@@ -699,18 +728,13 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(18),
                   onTap: logout,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 18),
-                    decoration: BoxDecoration(
-                        color: kPanel2,
-                        borderRadius: BorderRadius.circular(18)),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                    decoration: BoxDecoration(color: kPanel2, borderRadius: BorderRadius.circular(18)),
                     child: const Row(
                       children: [
                         Icon(Icons.logout, size: 28),
                         SizedBox(width: 14),
-                        Text('SAIR',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text('SAIR', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -740,13 +764,11 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 20),
                     const Text('Multi Servidor TV Box',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 34, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Text(
                       'Canais: ${liveItems.length}  •  Filmes: ${movieItems.length}  •  Séries: ${seriesItems.length}',
-                      style:
-                          const TextStyle(fontSize: 18, color: Colors.white70),
+                      style: const TextStyle(fontSize: 18, color: Colors.white70),
                     ),
                     const SizedBox(height: 22),
                     FilledButton.icon(
@@ -787,14 +809,11 @@ class _HomePageState extends State<HomePage> {
       case Section.home:
         return home();
       case Section.live:
-        return CatalogPage(
-            title: 'Canais', items: liveItems, mode: CatalogMode.channels);
+        return CatalogPage(title: 'Canais', items: liveItems, mode: CatalogMode.channels);
       case Section.movies:
-        return CatalogPage(
-            title: 'Filmes', items: movieItems, mode: CatalogMode.movies);
+        return CatalogPage(title: 'Filmes', items: movieItems, mode: CatalogMode.movies);
       case Section.series:
-        return CatalogPage(
-            title: 'Séries', items: seriesItems, mode: CatalogMode.series);
+        return CatalogPage(title: 'Séries', items: seriesItems, mode: CatalogMode.series);
       case Section.lists:
         return ListsPage(
           extraSources: extraSources,
@@ -805,8 +824,7 @@ class _HomePageState extends State<HomePage> {
           },
         );
       case Section.settings:
-        return SettingsPage(
-            onReload: loadLists, onDiagnostics: showDiagnostics);
+        return SettingsPage(onReload: loadLists, onDiagnostics: showDiagnostics);
     }
   }
 
@@ -862,8 +880,7 @@ class _CatalogPageState extends State<CatalogPage> {
   List<StreamItem> get filtered {
     return widget.items.where((e) {
       final okGroup = selectedGroup == 'Todos' || e.group == selectedGroup;
-      final okQuery = query.trim().isEmpty ||
-          e.title.toLowerCase().contains(query.toLowerCase());
+      final okQuery = query.trim().isEmpty || e.title.toLowerCase().contains(query.toLowerCase());
       return okGroup && okQuery;
     }).toList();
   }
@@ -885,8 +902,7 @@ class _CatalogPageState extends State<CatalogPage> {
           Padding(
             padding: const EdgeInsets.all(14),
             child: Text('${widget.title} (${widget.items.length})',
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           ),
           for (final e in gs.entries)
             ListTile(
@@ -915,15 +931,10 @@ class _CatalogPageState extends State<CatalogPage> {
               final item = list[i];
               return ListTile(
                 leading: item.logo.isNotEmpty
-                    ? Image.network(item.logo,
-                        width: 44,
-                        height: 44,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.tv))
+                    ? Image.network(item.logo, width: 44, height: 44, errorBuilder: (_, __, ___) => const Icon(Icons.tv))
                     : const Icon(Icons.tv),
-                title: Text(item.title,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                subtitle: Text('${item.group} • ${item.server}',
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Text('${item.group} • ${item.server}', maxLines: 1, overflow: TextOverflow.ellipsis),
                 onTap: () => openItem(item),
               );
             },
@@ -933,8 +944,7 @@ class _CatalogPageState extends State<CatalogPage> {
           child: Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-                color: kPanel, borderRadius: BorderRadius.circular(22)),
+            decoration: BoxDecoration(color: kPanel, borderRadius: BorderRadius.circular(22)),
             child: selected == null
                 ? const Center(child: Text('Nenhum canal'))
                 : Column(
@@ -942,19 +952,14 @@ class _CatalogPageState extends State<CatalogPage> {
                     children: [
                       selected.logo.isNotEmpty
                           ? Image.network(selected.logo,
-                              height: 110,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.live_tv, size: 90))
+                              height: 110, errorBuilder: (_, __, ___) => const Icon(Icons.live_tv, size: 90))
                           : const Icon(Icons.live_tv, size: 90),
                       const SizedBox(height: 18),
                       Text(selected.title,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold)),
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      Text(selected.group,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white70)),
+                      Text(selected.group, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
                       const SizedBox(height: 20),
                       FilledButton.icon(
                         style: FilledButton.styleFrom(backgroundColor: kRed),
@@ -991,8 +996,7 @@ class _CatalogPageState extends State<CatalogPage> {
                 onTap: () => openItem(item),
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  decoration: BoxDecoration(
-                      color: kPanel, borderRadius: BorderRadius.circular(16)),
+                  decoration: BoxDecoration(color: kPanel, borderRadius: BorderRadius.circular(16)),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
@@ -1002,14 +1006,11 @@ class _CatalogPageState extends State<CatalogPage> {
                                 item.logo,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Center(
-                                    child: Icon(Icons.movie, size: 54)),
+                                errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.movie, size: 54)),
                               )
                             : Center(
                                 child: Icon(
-                                  widget.mode == CatalogMode.series
-                                      ? Icons.video_library
-                                      : Icons.movie,
+                                  widget.mode == CatalogMode.series ? Icons.video_library : Icons.movie,
                                   size: 54,
                                 ),
                               ),
@@ -1020,8 +1021,7 @@ class _CatalogPageState extends State<CatalogPage> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -1049,9 +1049,7 @@ class _CatalogPageState extends State<CatalogPage> {
           ),
         ),
         Expanded(
-          child: widget.mode == CatalogMode.channels
-              ? channelsLayout()
-              : gridLayout(),
+          child: widget.mode == CatalogMode.channels ? channelsLayout() : gridLayout(),
         ),
       ],
     );
@@ -1072,8 +1070,7 @@ class _PlayerPageState extends State<PlayerPage> {
   String? error;
   bool loading = true;
 
-  bool get shouldSaveProgress =>
-      widget.item.kind == ItemKind.movie || widget.item.kind == ItemKind.series;
+  bool get shouldSaveProgress => widget.item.kind == ItemKind.movie || widget.item.kind == ItemKind.series;
 
   @override
   void initState() {
@@ -1091,8 +1088,7 @@ class _PlayerPageState extends State<PlayerPage> {
       if (shouldSaveProgress) {
         final prefs = await SharedPreferences.getInstance();
         final pos = prefs.getInt('progress_${widget.item.url}') ?? 0;
-        if (pos > 60000 &&
-            pos < (video!.value.duration.inMilliseconds - 60000)) {
+        if (pos > 60000 && pos < (video!.value.duration.inMilliseconds - 60000)) {
           await video!.seekTo(Duration(milliseconds: pos));
         }
       }
@@ -1120,8 +1116,7 @@ class _PlayerPageState extends State<PlayerPage> {
         },
       );
     } on TimeoutException {
-      error =
-          'Timeout ao iniciar o vídeo. Pode ser canal pesado/4K, servidor lento ou link bloqueado.';
+      error = 'Timeout ao iniciar o vídeo. Pode ser canal pesado/4K, servidor lento ou link bloqueado.';
     } catch (e) {
       error = e.toString();
     }
@@ -1130,14 +1125,12 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   Future<void> saveProgress() async {
-    if (!shouldSaveProgress || video == null || !video!.value.isInitialized)
-      return;
+    if (!shouldSaveProgress || video == null || !video!.value.isInitialized) return;
     final pos = video!.value.position.inMilliseconds;
     if (pos > 30000) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('progress_${widget.item.url}', pos);
-      await prefs.setString(
-          'progress_title_${widget.item.url}', widget.item.title);
+      await prefs.setString('progress_title_${widget.item.url}', widget.item.title);
     }
   }
 
@@ -1154,8 +1147,7 @@ class _PlayerPageState extends State<PlayerPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.item.title,
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(widget.item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
       body: Center(
         child: loading
@@ -1176,8 +1168,7 @@ class _PlayerPageState extends State<PlayerPage> {
                       'pelo aparelho, link expirado ou servidor demorando demais.\n\n'
                       'Detalhe técnico:\n$error',
                       textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 16),
+                      style: const TextStyle(color: Colors.white70, fontSize: 16),
                     ),
                   )
                 : Chewie(controller: chewie!),
@@ -1225,9 +1216,7 @@ class _ListsPageState extends State<ListsPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                TextField(
-                    controller: name,
-                    decoration: const InputDecoration(labelText: 'Nome')),
+                TextField(controller: name, decoration: const InputDecoration(labelText: 'Nome')),
                 const SizedBox(height: 10),
                 TextField(
                   controller: url,
@@ -1237,37 +1226,25 @@ class _ListsPageState extends State<ListsPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                TextField(
-                    controller: user,
-                    decoration:
-                        const InputDecoration(labelText: 'Usuário opcional')),
+                TextField(controller: user, decoration: const InputDecoration(labelText: 'Usuário opcional')),
                 const SizedBox(height: 10),
-                TextField(
-                    controller: pass,
-                    decoration:
-                        const InputDecoration(labelText: 'Senha opcional')),
+                TextField(controller: pass, decoration: const InputDecoration(labelText: 'Senha opcional')),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: kRed),
             onPressed: () {
               Navigator.pop(
                 context,
                 PlaylistSource(
-                  name: name.text.trim().isEmpty
-                      ? 'Playlist extra'
-                      : name.text.trim(),
+                  name: name.text.trim().isEmpty ? 'Playlist extra' : name.text.trim(),
                   urlTemplate: url.text.trim(),
-                  customUser:
-                      user.text.trim().isEmpty ? null : user.text.trim(),
-                  customPassword:
-                      pass.text.trim().isEmpty ? null : pass.text.trim(),
+                  customUser: user.text.trim().isEmpty ? null : user.text.trim(),
+                  customPassword: pass.text.trim().isEmpty ? null : pass.text.trim(),
                 ),
               );
             },
@@ -1324,16 +1301,12 @@ class _ListsPageState extends State<ListsPage> {
                   color: kPanel,
                   child: ListTile(
                     title: Text(s.name),
-                    subtitle: Text(maskUrl(s.urlTemplate),
-                        maxLines: 2, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(maskUrl(s.urlTemplate), maxLines: 2, overflow: TextOverflow.ellipsis),
                     trailing: Wrap(
                       children: [
+                        IconButton(icon: const Icon(Icons.edit), onPressed: () => addOrEdit(source: s, index: i)),
                         IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => addOrEdit(source: s, index: i)),
-                        IconButton(
-                          icon:
-                              const Icon(Icons.delete, color: Colors.redAccent),
+                          icon: const Icon(Icons.delete, color: Colors.redAccent),
                           onPressed: () {
                             setState(() => list.removeAt(i));
                             widget.onChanged(list);
@@ -1368,15 +1341,13 @@ class SettingsPage extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 520),
         padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-            color: kPanel, borderRadius: BorderRadius.circular(24)),
+        decoration: BoxDecoration(color: kPanel, borderRadius: BorderRadius.circular(24)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.settings, size: 64, color: kRed),
             const SizedBox(height: 12),
-            const Text('Ajustes',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            const Text('Ajustes', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.refresh),
@@ -1401,3 +1372,24 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
+DART
+
+echo "Formatando código..."
+dart format lib/main.dart
+
+echo "Limpando e baixando dependências..."
+flutter clean
+flutter pub get
+
+echo "Rodando análise..."
+flutter analyze || true
+
+echo "Correção aplicada."
+echo ""
+echo "Próximos comandos sugeridos:"
+echo "flutter run"
+echo ""
+echo "Ou envie para o GitHub:"
+echo "git add ."
+echo "git commit -m 'Corrige M3U MPEGTS, diagnostico e navegacao TV Box'"
+echo "git push"

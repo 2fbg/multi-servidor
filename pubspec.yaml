@@ -9,11 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.2
+  http: ^1.6.0
   flutter_secure_storage: ^9.2.4
-  shared_preferences: ^2.2.3
-  video_player: ^2.8.6
-  chewie: ^1.8.1
+  shared_preferences: ^2.5.5
+  video_player: ^2.11.1
+  chewie: ^1.13.1
 
 dev_dependencies:
   flutter_test:
