@@ -1,108 +1,65 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import '../models/channel.dart';
 
 class M3UParser {
-  static Future<List<Channel>> parseM3U(String url) async {
-    final client = HttpClient();
-    client.connectionTimeout = const Duration(seconds: 15);
-
+  static Future<List<Channel>> parseM3U(String url, {String? sourceName}) async {
     try {
-      final uri = Uri.parse(url);
+      final response = await http
+          .get(Uri.parse(url), headers: {'User-Agent': 'MultiServidor/1.0'})
+          .timeout(const Duration(seconds: 12));
 
-      final request = await client
-          .getUrl(uri)
-          .timeout(const Duration(seconds: 15));
-
-      final response = await request
-          .close()
-          .timeout(const Duration(seconds: 20));
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Servidor respondeu com erro: ${response.statusCode}');
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        return [];
       }
 
-      final content = await response
-          .transform(utf8.decoder)
-          .join()
-          .timeout(const Duration(seconds: 25));
+      final lines = response.body.split(RegExp(r'\r?\n'));
+      final channels = <Channel>[];
+      Channel? current;
 
-      final channels = parse(content);
+      for (final raw in lines) {
+        final line = raw.trim();
 
-      if (channels.isEmpty) {
-        throw Exception('Nenhum canal encontrado na lista M3U.');
+        if (line.isEmpty) continue;
+
+        if (line.startsWith('#EXTINF:')) {
+          final title = _extractTitle(line);
+          final attrs = _extractAttrs(line);
+
+          current = Channel(
+            id: '${sourceName ?? 'src'}_${channels.length}_${title.hashCode}',
+            title: title.isEmpty ? 'Sem título' : title,
+            group: attrs['group-title'] ?? 'Geral',
+            logo: attrs['tvg-logo'],
+            sourceName: sourceName,
+          );
+        } else if ((line.startsWith('http://') || line.startsWith('https://')) && current != null) {
+          channels.add(current.copyWith(streamUrl: line));
+          current = null;
+        }
       }
 
       return channels;
-    } on TimeoutException {
-      throw Exception('Tempo esgotado ao tentar carregar a lista.');
-    } on SocketException {
-      throw Exception('Falha de conexão com o servidor.');
-    } on FormatException {
-      throw Exception('URL inválida.');
-    } finally {
-      client.close(force: true);
+    } catch (_) {
+      return [];
     }
-  }
-
-  static List<Channel> parse(String content) {
-    final lines = const LineSplitter().convert(content);
-    final channels = <Channel>[];
-
-    String? currentTitle;
-    String? currentLogo;
-    String? currentGroup;
-
-    var index = 0;
-
-    for (final rawLine in lines) {
-      final line = rawLine.trim();
-
-      if (line.isEmpty || line == '#EXTM3U') {
-        continue;
-      }
-
-      if (line.startsWith('#EXTINF')) {
-        currentTitle = _extractTitle(line);
-        currentLogo = _extractAttribute(line, 'tvg-logo');
-        currentGroup = _extractAttribute(line, 'group-title');
-      } else if (line.startsWith('http')) {
-        index++;
-
-        channels.add(
-          Channel(
-            id: index.toString(),
-            title: currentTitle ?? 'Canal $index',
-            group: currentGroup,
-            logo: currentLogo,
-            streamUrl: line,
-          ),
-        );
-
-        currentTitle = null;
-        currentLogo = null;
-        currentGroup = null;
-      }
-    }
-
-    return channels;
   }
 
   static String _extractTitle(String line) {
-    final commaIndex = line.lastIndexOf(',');
-
-    if (commaIndex != -1 && commaIndex < line.length - 1) {
-      return line.substring(commaIndex + 1).trim();
+    final comma = line.lastIndexOf(',');
+    if (comma >= 0 && comma < line.length - 1) {
+      return line.substring(comma + 1).trim();
     }
-
     return 'Canal';
   }
 
-  static String? _extractAttribute(String line, String attribute) {
-    final regex = RegExp('$attribute="([^"]*)"');
-    final match = regex.firstMatch(line);
-    return match?.group(1);
+  static Map<String, String> _extractAttrs(String line) {
+    final attrs = <String, String>{};
+    final regex = RegExp(r'([A-Za-z0-9_-]+)="([^"]*)"');
+
+    for (final match in regex.allMatches(line)) {
+      attrs[match.group(1)!.toLowerCase()] = match.group(2)!;
+    }
+
+    return attrs;
   }
 }

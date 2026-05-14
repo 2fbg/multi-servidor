@@ -4,6 +4,7 @@ class Channel {
   final String? group;
   final String? logo;
   final String? streamUrl;
+  final String? sourceName;
 
   Channel({
     required this.id,
@@ -11,15 +12,24 @@ class Channel {
     this.group,
     this.logo,
     this.streamUrl,
+    this.sourceName,
   });
 
-  Channel copyWith({String? streamUrl}) {
+  Channel copyWith({
+    String? id,
+    String? title,
+    String? group,
+    String? logo,
+    String? streamUrl,
+    String? sourceName,
+  }) {
     return Channel(
-      id: id,
-      title: title,
-      group: group,
-      logo: logo,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      group: group ?? this.group,
+      logo: logo ?? this.logo,
       streamUrl: streamUrl ?? this.streamUrl,
+      sourceName: sourceName ?? this.sourceName,
     );
   }
 }

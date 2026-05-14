@@ -1,3 +1,482 @@
+#!/usr/bin/env bash
+set -e
+
+echo "🚀 Aplicando atualização profissional Multi Servidor..."
+
+mkdir -p lib/config lib/models lib/services lib/screens
+
+cat > pubspec.yaml <<'EOF'
+name: multi_servidor
+description: App multi servidor com player profissional
+publish_to: 'none'
+version: 1.0.1+2
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.2.3
+  video_player: ^2.8.6
+  chewie: ^1.8.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2
+
+flutter:
+  uses-material-design: true
+EOF
+
+cat > lib/models/channel.dart <<'EOF'
+class Channel {
+  final String id;
+  final String title;
+  final String? group;
+  final String? logo;
+  final String? streamUrl;
+  final String? sourceName;
+
+  Channel({
+    required this.id,
+    required this.title,
+    this.group,
+    this.logo,
+    this.streamUrl,
+    this.sourceName,
+  });
+
+  Channel copyWith({
+    String? id,
+    String? title,
+    String? group,
+    String? logo,
+    String? streamUrl,
+    String? sourceName,
+  }) {
+    return Channel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      group: group ?? this.group,
+      logo: logo ?? this.logo,
+      streamUrl: streamUrl ?? this.streamUrl,
+      sourceName: sourceName ?? this.sourceName,
+    );
+  }
+}
+EOF
+
+cat > lib/config/servers.dart <<'EOF'
+class Server {
+  final String name;
+  final String baseUrl;
+  final String username;
+  final String password;
+  final bool directUrl;
+
+  const Server({
+    required this.name,
+    required this.baseUrl,
+    required this.username,
+    required this.password,
+    this.directUrl = false,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'baseUrl': baseUrl,
+        'username': username,
+        'password': password,
+        'directUrl': directUrl,
+      };
+
+  factory Server.fromJson(Map<String, dynamic> json) {
+    return Server(
+      name: json['name'] ?? 'Playlist',
+      baseUrl: json['baseUrl'] ?? '',
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
+      directUrl: json['directUrl'] == true,
+    );
+  }
+}
+
+class ServerConfig {
+  static List<Server> buildDefaultServers(String user, String pass) {
+    return [
+      Server(name: 'VLOG', baseUrl: 'http://vlogmk.de', username: user, password: pass),
+      Server(name: 'LUB TV', baseUrl: 'http://triimundial.shop', username: user, password: pass),
+      Server(name: 'CINELON21', baseUrl: 'http://cinelontv.work', username: user, password: pass),
+      Server(name: 'TANNIX', baseUrl: 'http://zeip.fun', username: user, password: pass),
+      Server(name: 'CB6000', baseUrl: 'http://kraewert.top', username: user, password: pass),
+      Server(name: 'MK21 TV', baseUrl: 'http://mk21.uk', username: user, password: pass),
+      Server(name: 'NOVATV', baseUrl: 'http://novatv.news', username: user, password: pass),
+    ];
+  }
+
+  static String buildM3UUrl(Server server) {
+    if (server.directUrl) {
+      return server.baseUrl.trim();
+    }
+
+    final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+    return '$base/get.php?username=${Uri.encodeComponent(server.username)}&password=${Uri.encodeComponent(server.password)}&type=m3u_plus&output=mpegts';
+  }
+}
+EOF
+
+cat > lib/services/m3u_parser.dart <<'EOF'
+import 'package:http/http.dart' as http;
+import '../models/channel.dart';
+
+class M3UParser {
+  static Future<List<Channel>> parseM3U(String url, {String? sourceName}) async {
+    try {
+      final response = await http
+          .get(Uri.parse(url), headers: {'User-Agent': 'MultiServidor/1.0'})
+          .timeout(const Duration(seconds: 12));
+
+      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+        return [];
+      }
+
+      final lines = response.body.split(RegExp(r'\r?\n'));
+      final channels = <Channel>[];
+      Channel? current;
+
+      for (final raw in lines) {
+        final line = raw.trim();
+
+        if (line.isEmpty) continue;
+
+        if (line.startsWith('#EXTINF:')) {
+          final title = _extractTitle(line);
+          final attrs = _extractAttrs(line);
+
+          current = Channel(
+            id: '${sourceName ?? 'src'}_${channels.length}_${title.hashCode}',
+            title: title.isEmpty ? 'Sem título' : title,
+            group: attrs['group-title'] ?? 'Geral',
+            logo: attrs['tvg-logo'],
+            sourceName: sourceName,
+          );
+        } else if ((line.startsWith('http://') || line.startsWith('https://')) && current != null) {
+          channels.add(current.copyWith(streamUrl: line));
+          current = null;
+        }
+      }
+
+      return channels;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static String _extractTitle(String line) {
+    final comma = line.lastIndexOf(',');
+    if (comma >= 0 && comma < line.length - 1) {
+      return line.substring(comma + 1).trim();
+    }
+    return 'Canal';
+  }
+
+  static Map<String, String> _extractAttrs(String line) {
+    final attrs = <String, String>{};
+    final regex = RegExp(r'([A-Za-z0-9_-]+)="([^"]*)"');
+
+    for (final match in regex.allMatches(line)) {
+      attrs[match.group(1)!.toLowerCase()] = match.group(2)!;
+    }
+
+    return attrs;
+  }
+}
+EOF
+
+cat > lib/services/storage.dart <<'EOF'
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/servers.dart';
+import '../models/channel.dart';
+
+class AppStorage {
+  static const _secure = FlutterSecureStorage();
+
+  static Future<void> saveCredentials(String user, String pass) async {
+    await _secure.write(key: 'login_user', value: user);
+    await _secure.write(key: 'login_pass', value: pass);
+  }
+
+  static Future<Map<String, String>?> getCredentials() async {
+    final user = await _secure.read(key: 'login_user');
+    final pass = await _secure.read(key: 'login_pass');
+
+    if (user == null || pass == null) return null;
+    return {'user': user, 'pass': pass};
+  }
+
+  static Future<void> clearCredentials() async {
+    await _secure.delete(key: 'login_user');
+    await _secure.delete(key: 'login_pass');
+  }
+
+  static Future<List<Server>> getCustomPlaylists() async {
+    final raw = await _secure.read(key: 'custom_playlists');
+    if (raw == null || raw.isEmpty) return [];
+
+    try {
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => Server.fromJson(Map<String, dynamic>.from(e))).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Future<void> saveCustomPlaylists(List<Server> playlists) async {
+    final raw = jsonEncode(playlists.map((e) => e.toJson()).toList());
+    await _secure.write(key: 'custom_playlists', value: raw);
+  }
+
+  static Future<void> addCustomPlaylist(Server server) async {
+    final current = await getCustomPlaylists();
+    current.removeWhere((e) => e.name == server.name);
+    current.add(server);
+    await saveCustomPlaylists(current);
+  }
+
+  static Future<void> removeCustomPlaylist(String name) async {
+    final current = await getCustomPlaylists();
+    current.removeWhere((e) => e.name == name);
+    await saveCustomPlaylists(current);
+  }
+
+  static Future<void> saveWatch(Channel channel, Duration position, Duration duration) async {
+    if (channel.streamUrl == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final rawList = prefs.getStringList('continue_watching') ?? [];
+
+    final item = {
+      'id': channel.id,
+      'title': channel.title,
+      'group': channel.group,
+      'logo': channel.logo,
+      'streamUrl': channel.streamUrl,
+      'sourceName': channel.sourceName,
+      'position': position.inMilliseconds,
+      'duration': duration.inMilliseconds,
+      'updatedAt': DateTime.now().toIso8601String(),
+    };
+
+    final filtered = rawList.where((raw) {
+      try {
+        final decoded = jsonDecode(raw);
+        return decoded['streamUrl'] != channel.streamUrl;
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+
+    filtered.insert(0, jsonEncode(item));
+
+    if (filtered.length > 30) {
+      filtered.removeRange(30, filtered.length);
+    }
+
+    await prefs.setStringList('continue_watching', filtered);
+  }
+
+  static Future<List<Channel>> getContinueWatching() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rawList = prefs.getStringList('continue_watching') ?? [];
+
+    final result = <Channel>[];
+
+    for (final raw in rawList) {
+      try {
+        final json = jsonDecode(raw);
+        result.add(Channel(
+          id: json['id'] ?? '',
+          title: json['title'] ?? 'Sem título',
+          group: json['group'],
+          logo: json['logo'],
+          streamUrl: json['streamUrl'],
+          sourceName: json['sourceName'],
+        ));
+      } catch (_) {}
+    }
+
+    return result;
+  }
+}
+EOF
+
+cat > lib/screens/player_screen.dart <<'EOF'
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
+import '../models/channel.dart';
+import '../services/storage.dart';
+
+class PlayerScreen extends StatefulWidget {
+  final Channel channel;
+
+  const PlayerScreen({super.key, required this.channel});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  VideoPlayerController? _video;
+  ChewieController? _chewie;
+  String? _error;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _startPlayer();
+  }
+
+  Future<void> _startPlayer() async {
+    try {
+      final url = widget.channel.streamUrl;
+
+      if (url == null || url.isEmpty) {
+        setState(() {
+          _error = 'Link inválido.';
+          _loading = false;
+        });
+        return;
+      }
+
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.portraitUp,
+      ]);
+
+      final controller = VideoPlayerController.networkUrl(
+        Uri.parse(url),
+        httpHeaders: const {'User-Agent': 'MultiServidor/1.0'},
+      );
+
+      await controller.initialize().timeout(const Duration(seconds: 15));
+
+      final chewie = ChewieController(
+        videoPlayerController: controller,
+        autoPlay: true,
+        looping: false,
+        allowFullScreen: true,
+        allowPlaybackSpeedChanging: true,
+        showControls: true,
+        playbackSpeeds: const [0.5, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0],
+        errorBuilder: (context, errorMessage) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'Não foi possível reproduzir este conteúdo.\n$errorMessage',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        },
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _video = controller;
+        _chewie = chewie;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _error = 'Falha ao abrir o vídeo. Tente outro link ou servidor.';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _saveProgress() async {
+    final video = _video;
+    if (video == null || !video.value.isInitialized) return;
+
+    await AppStorage.saveWatch(
+      widget.channel,
+      video.value.position,
+      video.value.duration,
+    );
+  }
+
+  @override
+  void dispose() {
+    _saveProgress();
+
+    _chewie?.dispose();
+    _video?.dispose();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(title: Text(widget.channel.title)),
+        body: const Center(child: CircularProgressIndicator(color: Colors.red)),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(title: Text(widget.channel.title)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(title: Text(widget.channel.title)),
+      body: Center(
+        child: AspectRatio(
+          aspectRatio: _video!.value.aspectRatio,
+          child: Chewie(controller: _chewie!),
+        ),
+      ),
+    );
+  }
+}
+EOF
+
+cat > lib/main.dart <<'EOF'
 import 'package:flutter/material.dart';
 import 'config/servers.dart';
 import 'models/channel.dart';
@@ -787,3 +1266,39 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+EOF
+
+python3 - <<'PY'
+from pathlib import Path
+
+manifest = Path("android/app/src/main/AndroidManifest.xml")
+if manifest.exists():
+    text = manifest.read_text()
+    if "android.permission.INTERNET" not in text:
+        text = text.replace(
+            "<manifest",
+            '<manifest',
+            1
+        )
+        insert = '    <uses-permission android:name="android.permission.INTERNET"/>\n'
+        text = text.replace("<application", insert + "    <application", 1)
+        manifest.write_text(text)
+        print("✅ Permissão INTERNET adicionada.")
+    else:
+        print("✅ Permissão INTERNET já existia.")
+else:
+    print("⚠️ AndroidManifest.xml não encontrado.")
+PY
+
+echo "📦 Atualizando dependências..."
+flutter pub get
+
+echo "🧹 Limpando build antigo..."
+flutter clean
+
+echo "✅ Atualização aplicada com sucesso."
+echo ""
+echo "Agora rode:"
+echo "git add ."
+echo "git commit -m \"player profissional e visual netflix\""
+echo "git push"
