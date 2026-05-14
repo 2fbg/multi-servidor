@@ -4,15 +4,25 @@ import 'dart:io';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
 part 'series_catalog_page.dart';
+part 'mini_preview_player.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
   runApp(const MultiServidorApp());
 }
 
@@ -27,8 +37,11 @@ Map<String, String> iptvHeaders() {
     'User-Agent':
         'Mozilla/5.0 (Linux; Android 12; MultiServidor) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36',
     'Accept': '*/*',
+    'Accept-Encoding': 'identity',
     'Connection': 'keep-alive',
     'Icy-MetaData': '1',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
   };
 }
 
@@ -348,93 +361,112 @@ class M3uService {
 
   static ItemKind classifyItem(String title, String group, String url) {
     final t = title.toLowerCase();
-    final g = group.toLowerCase();
     final u = url.toLowerCase();
-    final joined = '$t $g $u';
 
-    final seriesPattern = RegExp(
-      r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)|(\be\d{1,3}\b)',
-      caseSensitive: false,
-    );
+    final g = group
+        .toLowerCase()
+        .replaceAll('♠', '')
+        .replaceAll('♣', '')
+        .replaceAll('♥', '')
+        .replaceAll('♦', '')
+        .trim();
 
-    final movieWords = [
-      'filme',
-      'filmes',
-      'movie',
-      'movies',
-      'vod',
-      'cinema',
-      'lançamento',
-      'lancamento',
-      'top 10',
-      'ação',
-      'acao',
-      'crime',
-      'guerra',
-      'terror',
-      'drama',
-      'comédia',
-      'comedia',
-      'animação',
-      'animacao',
-      'infantil',
-      'família',
-      'familia',
-      'romance',
-      'suspense',
-      'aventura',
-      'documentário',
-      'documentario'
-    ];
+    bool groupHas(List<String> words) => words.any((w) => g.contains(w));
+    bool groupStarts(List<String> words) => words.any((w) => g.startsWith(w));
 
-    final seriesWords = [
-      'serie',
-      'série',
-      'series',
-      'séries',
-      'temporada',
-      'episodio',
-      'episódio',
-      'novela',
-      'anime semanal'
-    ];
+    // Primeiro respeita categoria da playlist.
+    // Isso evita categoria de filmes aparecer dentro de séries.
+    if (groupStarts([
+          'filme',
+          'filmes',
+          'movie',
+          'movies',
+          'vod',
+          'cinema',
+          'lancamento',
+          'lançamento',
+        ]) ||
+        groupHas([
+          'filmes |',
+          'filme |',
+          'movies |',
+          'movie |',
+          'vod |',
+        ])) {
+      return ItemKind.movie;
+    }
 
-    final liveWords = [
+    if (groupStarts([
+          'series',
+          'séries',
+          'serie',
+          'série',
+          'seriados',
+          'novelas',
+        ]) ||
+        groupHas([
+          'series |',
+          'séries |',
+          'serie |',
+          'série |',
+          'temporada',
+          'episodio',
+          'episódio',
+        ])) {
+      return ItemKind.series;
+    }
+
+    if (groupStarts([
       'canais',
       'canal',
       'ao vivo',
       'aovivo',
       'live',
       'tv',
-      '4k',
-      'globo',
-      'record',
-      'sbt',
-      'band',
-      'sportv',
-      'premiere',
-      'espn',
-      'telecine',
-      'hbo'
-    ];
-
-    if (u.contains('/series/') ||
-        seriesPattern.hasMatch(joined) ||
-        seriesWords.any((w) => g.contains(w))) {
-      return ItemKind.series;
-    }
-
-    if (u.contains('/movie/') ||
-        u.contains('/vod/') ||
-        movieWords.any((w) => g.contains(w))) {
-      return ItemKind.movie;
-    }
-
-    if (liveWords.any((w) => g.contains(w))) {
+    ])) {
       return ItemKind.live;
     }
 
-    // Em Xtream/M3U MPEGTS, quando não é movie/series, normalmente é canal ao vivo.
+    // Depois URL Xtream.
+    if (u.contains('/movie/') || u.contains('/vod/')) {
+      return ItemKind.movie;
+    }
+
+    if (u.contains('/series/')) {
+      return ItemKind.series;
+    }
+
+    // Depois padrões no nome.
+    final seriesPattern = RegExp(
+      r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)',
+      caseSensitive: false,
+    );
+
+    if (seriesPattern.hasMatch('$t $g')) {
+      return ItemKind.series;
+    }
+
+    if (groupHas([
+      'ação',
+      'acao',
+      'aventura',
+      'comedia',
+      'comédia',
+      'crime',
+      'drama',
+      'terror',
+      'suspense',
+      'romance',
+      'animacao',
+      'animação',
+      'documentario',
+      'documentário',
+      'familia',
+      'família',
+    ])) {
+      return ItemKind.movie;
+    }
+
     return ItemKind.live;
   }
 }
@@ -1102,12 +1134,21 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          topBar(),
-          Expanded(child: currentBody()),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (section != Section.home) {
+          setState(() => section = Section.home);
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            topBar(),
+            Expanded(child: currentBody()),
+          ],
+        ),
       ),
     );
   }
@@ -1134,6 +1175,7 @@ class CatalogPage extends StatefulWidget {
 class _CatalogPageState extends State<CatalogPage> {
   String selectedGroup = 'Todos';
   String query = '';
+  StreamItem? selectedPreviewItem;
 
   Map<String, int> get groups {
     final map = <String, int>{'Todos': widget.items.length};
@@ -1193,7 +1235,10 @@ class _CatalogPageState extends State<CatalogPage> {
 
   Widget channelsLayout() {
     final list = filtered;
-    final selected = list.isNotEmpty ? list.first : null;
+    final selected =
+        selectedPreviewItem != null && list.contains(selectedPreviewItem)
+            ? selectedPreviewItem
+            : (list.isNotEmpty ? list.first : null);
     return Row(
       children: [
         groupList(),
@@ -1214,7 +1259,8 @@ class _CatalogPageState extends State<CatalogPage> {
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text('${item.group} • ${item.server}',
                     maxLines: 1, overflow: TextOverflow.ellipsis),
-                onTap: () => openItem(item),
+                onTap: () => setState(() => selectedPreviewItem = item),
+                onLongPress: () => openItem(item),
               );
             },
           ),
@@ -1278,7 +1324,8 @@ class _CatalogPageState extends State<CatalogPage> {
             itemBuilder: (_, i) {
               final item = list[i];
               return InkWell(
-                onTap: () => openItem(item),
+                onTap: () => setState(() => selectedPreviewItem = item),
+                onLongPress: () => openItem(item),
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
                   decoration: BoxDecoration(
@@ -1376,7 +1423,7 @@ class _PlayerPageState extends State<PlayerPage> {
       final uri = Uri.parse(widget.item.url);
       video = VideoPlayerController.networkUrl(uri, httpHeaders: iptvHeaders());
 
-      await video!.initialize().timeout(const Duration(seconds: 35));
+      await video!.initialize().timeout(const Duration(seconds: 60));
 
       if (shouldSaveProgress) {
         final prefs = await SharedPreferences.getInstance();
@@ -1399,8 +1446,10 @@ class _PlayerPageState extends State<PlayerPage> {
               padding: const EdgeInsets.all(24),
               child: Text(
                 'Falha ao abrir o vídeo.\n\n'
-                'Esse canal pode estar offline, bloqueado, em 4K/codec incompatível '
-                'ou em formato não suportado pelo player interno.\n\n'
+                'Possíveis causas: canal offline, bloqueio do servidor, limite de conexão, '
+                'codec 4K/H.265 não suportado pelo aparelho, link expirado ou servidor lento.\n\n'
+                'Tente outro canal da mesma lista. Se só canais 4K falharem, é provável incompatibilidade '
+                'de codec/bitrate do aparelho.\n\n'
                 'Detalhe técnico:\n$message',
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
@@ -1462,7 +1511,7 @@ class _PlayerPageState extends State<PlayerPage> {
                     padding: const EdgeInsets.all(28),
                     child: Text(
                       'Falha ao abrir o vídeo.\n\n'
-                      'Possíveis causas: canal offline, bloqueio do servidor, codec 4K/H.265 não suportado '
+                      'Possíveis causas: canal offline, bloqueio do servidor, limite de conexão, codec 4K/H.265 não suportado '
                       'pelo aparelho, link expirado ou servidor demorando demais.\n\n'
                       'Detalhe técnico:\n$error',
                       textAlign: TextAlign.center,

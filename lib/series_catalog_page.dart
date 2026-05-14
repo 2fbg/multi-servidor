@@ -474,35 +474,47 @@ class _SeriesCatalogPageState extends State<SeriesCatalogPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: TextField(
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              labelText: 'Buscar em Séries',
-            ),
-            onChanged: (v) {
-              setState(() {
-                query = v;
-                selectedShow = '';
-                selectedSeason = 'Todas';
-              });
-            },
-          ),
-        ),
-        Expanded(
-          child: Row(
-            children: [
-              groupList(),
-              Expanded(
-                child: selectedShow.isEmpty ? showGrid() : episodeGrid(),
+    return WillPopScope(
+      onWillPop: () async {
+        if (selectedShow.isNotEmpty) {
+          setState(() {
+            selectedShow = '';
+            selectedSeason = 'Todas';
+          });
+          return false;
+        }
+        return true;
+      },
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: TextField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                labelText: 'Buscar em Séries',
               ),
-            ],
+              onChanged: (v) {
+                setState(() {
+                  query = v;
+                  selectedShow = '';
+                  selectedSeason = 'Todas';
+                });
+              },
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: Row(
+              children: [
+                groupList(),
+                Expanded(
+                  child: selectedShow.isEmpty ? showGrid() : episodeGrid(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
