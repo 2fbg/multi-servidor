@@ -7,17 +7,27 @@ class M3UParser {
       final response = await http.get(
         Uri.parse(url),
         headers: const {
-          'User-Agent': 'Mozilla/5.0 MultiServidor',
+          'User-Agent': 'Mozilla/5.0 (Linux; Android) MultiServidor/1.0',
           'Accept': '*/*',
           'Connection': 'keep-alive',
         },
-      ).timeout(const Duration(seconds: 22));
+      ).timeout(const Duration(seconds: 45));
 
-      if (response.statusCode != 200 || response.body.trim().isEmpty) {
+      if (response.statusCode != 200) {
         return [];
       }
 
-      final lines = response.body.split(RegExp(r'\r?\n'));
+      final body = response.body.trim();
+
+      if (body.isEmpty) {
+        return [];
+      }
+
+      if (!body.contains('#EXTINF')) {
+        return [];
+      }
+
+      final lines = body.split(RegExp(r'\r?\n'));
       final channels = <Channel>[];
       Channel? current;
 
@@ -30,7 +40,6 @@ class M3UParser {
           final title = _extractTitle(line);
           final attrs = _extractAttrs(line);
           final group = attrs['group-title'] ?? attrs['group'] ?? 'Geral';
-          final type = _detectType(title, group, null);
 
           current = Channel(
             id: '${sourceName ?? 'src'}_${channels.length}_${title.hashCode}',
@@ -38,11 +47,18 @@ class M3UParser {
             group: group,
             logo: attrs['tvg-logo'],
             sourceName: sourceName,
-            type: type,
+            type: _detectType(title, group, null),
           );
         } else if ((line.startsWith('http://') || line.startsWith('https://')) && current != null) {
           final type = _detectType(current.title, current.group, line);
-          channels.add(current.copyWith(streamUrl: line, type: type));
+
+          channels.add(
+            current.copyWith(
+              streamUrl: line,
+              type: type,
+            ),
+          );
+
           current = null;
         }
       }
@@ -55,9 +71,11 @@ class M3UParser {
 
   static String _extractTitle(String line) {
     final comma = line.lastIndexOf(',');
+
     if (comma >= 0 && comma < line.length - 1) {
       return line.substring(comma + 1).trim();
     }
+
     return 'Canal';
   }
 
@@ -81,6 +99,30 @@ class M3UParser {
   static ChannelType _detectType(String title, String? group, String? url) {
     final text = '${title.toLowerCase()} ${(group ?? '').toLowerCase()} ${(url ?? '').toLowerCase()}';
 
+    final seriesWords = [
+      'série',
+      'serie',
+      'series',
+      'séries',
+      '/series/',
+      '/serie/',
+      'temporada',
+      'season',
+      'episodio',
+      'episódio',
+      'capitulo',
+      'capítulo',
+      's01',
+      's02',
+      's03',
+      's04',
+      's05',
+      'e01',
+      'e02',
+      'e03',
+      'e04',
+    ];
+
     final movieWords = [
       'filme',
       'filmes',
@@ -89,27 +131,14 @@ class M3UParser {
       'cinema',
       'vod',
       '/movie/',
+      '/movies/',
+      '/filme/',
+      '/filmes/',
       'lançamento',
       'lancamento',
-      '4k filmes',
-    ];
-
-    final seriesWords = [
-      'serie',
-      'série',
-      'series',
-      'séries',
-      '/series/',
-      'temporada',
-      'season',
-      'episodio',
-      'episódio',
-      's01',
-      's02',
-      's03',
-      's04',
-      'e01',
-      'e02',
+      'bluray',
+      'dub',
+      'legendado',
     ];
 
     for (final word in seriesWords) {

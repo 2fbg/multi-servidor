@@ -47,14 +47,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final controller = VideoPlayerController.networkUrl(
         Uri.parse(url),
         httpHeaders: const {
-          'User-Agent': 'Mozilla/5.0 MultiServidor',
+          'User-Agent': 'Mozilla/5.0 (Linux; Android) MultiServidor/1.0',
           'Accept': '*/*',
           'Connection': 'keep-alive',
         },
         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
 
-      await controller.initialize().timeout(const Duration(seconds: 35));
+      await controller.initialize().timeout(const Duration(seconds: 45));
 
       final chewie = ChewieController(
         videoPlayerController: controller,
@@ -95,7 +95,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
       if (!mounted) return;
 
       setState(() {
-        _error = 'Falha ao abrir o vídeo.\n\nDetalhe técnico:\n$e\n\nTente outro canal, outro servidor ou playlist em formato M3U8.';
+        _error =
+            'Falha ao abrir o vídeo.\n\n'
+            'Esse canal pode estar offline, bloqueado ou em formato não suportado pelo player interno.\n\n'
+            'Detalhe técnico:\n$e';
         _loading = false;
       });
     }
@@ -103,6 +106,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Future<void> _saveProgress() async {
     final video = _video;
+
     if (video == null || !video.value.isInitialized) return;
 
     await AppStorage.saveWatch(
@@ -151,7 +155,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         backgroundColor: Colors.black,
         appBar: AppBar(title: Text(widget.channel.title)),
         body: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Text(
               _error!,
