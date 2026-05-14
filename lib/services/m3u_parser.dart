@@ -11,7 +11,7 @@ class M3UParser {
           'Accept': '*/*',
           'Connection': 'keep-alive',
         },
-      ).timeout(const Duration(seconds: 45));
+      ).timeout(const Duration(seconds: 90));
 
       if (response.statusCode != 200) {
         return [];

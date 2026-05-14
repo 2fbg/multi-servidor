@@ -39,59 +39,21 @@ class Server {
 class ServerConfig {
   static List<Server> buildDefaultServers(String user, String pass) {
     return [
-      Server(
-        name: 'VLOG',
-        baseUrl: 'http://vlogmk.de',
-        username: user,
-        password: pass,
-        outputFormat: 'mpegts',
-      ),
-      Server(
-        name: 'LUB TV',
-        baseUrl: 'http://triimundial.shop',
-        username: user,
-        password: pass,
-        outputFormat: 'mpegts',
-      ),
-      Server(
-        name: 'CINELON21',
-        baseUrl: 'http://infinixparcerias.site',
-        username: user,
-        password: pass,
-        outputFormat: 'mpegts',
-      ),
-      Server(
-        name: 'TANNIX',
-        baseUrl: 'http://unituf.online',
-        username: user,
-        password: pass,
-        outputFormat: 'mpegts',
-      ),
-      Server(
-        name: 'CB6000',
-        baseUrl: 'http://cb6.fun',
-        username: user,
-        password: pass,
-        outputFormat: 'mpegts',
-      ),
-      Server(
-        name: 'MK21 TV',
-        baseUrl: 'http://appsmk.org',
-        username: user,
-        password: pass,
-        outputFormat: 'mpegts',
-      ),
+      Server(name: 'VLOG', baseUrl: 'http://vlogmk.de', username: user, password: pass),
+      Server(name: 'LUB TV', baseUrl: 'http://triimundial.shop', username: user, password: pass),
+      Server(name: 'CINELON21', baseUrl: 'http://infinixparcerias.site', username: user, password: pass),
+      Server(name: 'TANNIX', baseUrl: 'http://unituf.online', username: user, password: pass),
+      Server(name: 'CB6000', baseUrl: 'http://cb6.fun', username: user, password: pass),
+      Server(name: 'MK21 TV', baseUrl: 'http://appsmk.org', username: user, password: pass),
     ];
   }
 
   static String buildM3UUrl(Server server) {
-    if (server.directUrl) {
-      return server.baseUrl.trim();
-    }
+    if (server.directUrl) return server.baseUrl.trim();
 
     final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
 
-    return '$base/get.php?username=${Uri.encodeComponent(server.username)}&password=${Uri.encodeComponent(server.password)}&type=m3u_plus&output=${server.outputFormat}';
+    return '$base/get.php?username=${Uri.encodeComponent(server.username)}&password=${Uri.encodeComponent(server.password)}&type=m3u_plus&output=mpegts';
   }
 
   static String safeUrlForDebug(Server server) {
@@ -99,6 +61,6 @@ class ServerConfig {
 
     final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
 
-    return '$base/get.php?username=***&password=***&type=m3u_plus&output=${server.outputFormat}';
+    return '$base/get.php?username=***&password=***&type=m3u_plus&output=mpegts';
   }
 }

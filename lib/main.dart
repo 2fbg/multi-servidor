@@ -230,7 +230,7 @@ enum CategoryFilter { all, live, movies, series }
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _loading = true;
-  String _status = 'Carregando servidor principal...';
+  String _status = 'Carregando servidor principal... Aguarde, listas grandes podem demorar.';
 
   List<Server> _servers = [];
   Server? _selectedServer;
@@ -275,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _loading = true;
-      _status = 'Carregando ${server.name}...';
+      _status = 'Carregando ${server.name}... Aguarde, lista grande pode demorar.';
       _selectedServer = server;
     });
 
@@ -283,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final url = ServerConfig.buildM3UUrl(server);
       final result = await M3UParser
           .parseM3U(url, sourceName: server.name)
-          .timeout(const Duration(seconds: 14));
+          .timeout(const Duration(seconds: 90));
 
       if (!mounted) return;
 
