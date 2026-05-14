@@ -870,8 +870,8 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     final erase = prefs.getBool('erase_password_on_next_logout') ?? false;
 
-    // Mantém o usuário salvo para aparecer novamente na tela de login.
-    // Remove senha somente se o usuário desmarcou "Salvar senha".
+    await prefs.remove('login_user');
+
     if (erase) {
       await prefs.remove('login_pass');
       await prefs.remove('erase_password_on_next_logout');
@@ -1046,16 +1046,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget home() {
-    final highlights = [
-      ...movieItems.take(18),
-      ...seriesItems.take(10),
-      ...liveItems.take(6),
-    ];
-
     return Row(
       children: [
         SizedBox(
-          width: 330,
+          width: 310,
           child: ListView(
             padding: const EdgeInsets.all(18),
             children: [
@@ -1099,7 +1093,7 @@ class _HomePageState extends State<HomePage> {
         ),
         Expanded(
           child: Container(
-            margin: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+            margin: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               gradient: const LinearGradient(
@@ -1108,208 +1102,64 @@ class _HomePageState extends State<HomePage> {
                 end: Alignment.bottomRight,
               ),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: highlights.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Carregue uma lista para ver os destaques',
-                      style: TextStyle(fontSize: 22, color: Colors.white70),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.connected_tv, size: 88, color: kRed),
+                    const SizedBox(height: 20),
+                    Text(
+                      selectedSource.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 34, fontWeight: FontWeight.bold),
                     ),
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(26, 22, 26, 8),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.local_fire_department,
-                                color: kRed, size: 34),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Destaques de ${selectedSource.name}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                    const SizedBox(height: 12),
+                    Text(
+                      'Ao Vivo: ${liveItems.length}  •  Filmes: ${movieItems.length}  •  Séries: ${seriesItems.length}',
+                      style:
+                          const TextStyle(fontSize: 18, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 22),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: () =>
+                              setState(() => section = Section.live),
+                          icon: const Icon(Icons.live_tv),
+                          label: const Text('Ao Vivo'),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 26),
-                        child: Text(
-                          'Ao Vivo: ${liveItems.length}  •  Filmes: ${movieItems.length}  •  Séries: ${seriesItems.length}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 16, color: Colors.white70),
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: () =>
+                              setState(() => section = Section.movies),
+                          icon: const Icon(Icons.movie),
+                          label: const Text('Filmes'),
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                      Expanded(
-                        child: PageView.builder(
-                          controller: PageController(viewportFraction: 0.72),
-                          itemCount: highlights.length,
-                          itemBuilder: (context, index) {
-                            final item = highlights[index];
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 8),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(24),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => PlayerPage(item: item)),
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(.35),
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: Colors.white12),
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 2,
-                                        child: item.logo.isNotEmpty
-                                            ? Image.network(
-                                                item.logo,
-                                                fit: BoxFit.cover,
-                                                height: double.infinity,
-                                                errorBuilder: (_, __, ___) {
-                                                  return const Center(
-                                                    child: Icon(Icons.movie,
-                                                        size: 80, color: kRed),
-                                                  );
-                                                },
-                                              )
-                                            : const Center(
-                                                child: Icon(Icons.movie,
-                                                    size: 80, color: kRed),
-                                              ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(24),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                item.kind == ItemKind.live
-                                                    ? 'AO VIVO'
-                                                    : item.kind ==
-                                                            ItemKind.movie
-                                                        ? 'FILME'
-                                                        : 'SÉRIE',
-                                                style: const TextStyle(
-                                                  color: kRed,
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 1.2,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                item.title,
-                                                maxLines: 3,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontSize: 32,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                '${item.group} • ${item.server}',
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.white70,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 20),
-                                              FilledButton.icon(
-                                                style: FilledButton.styleFrom(
-                                                    backgroundColor: kRed),
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            PlayerPage(
-                                                                item: item)),
-                                                  );
-                                                },
-                                                icon: const Icon(
-                                                    Icons.play_arrow),
-                                                label: const Text('Assistir'),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: () =>
+                              setState(() => section = Section.series),
+                          icon: const Icon(Icons.video_library),
+                          label: const Text('Séries'),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(26, 4, 26, 18),
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 8,
-                          children: [
-                            FilledButton.icon(
-                              style:
-                                  FilledButton.styleFrom(backgroundColor: kRed),
-                              onPressed: () =>
-                                  setState(() => section = Section.live),
-                              icon: const Icon(Icons.live_tv),
-                              label: const Text('Ao Vivo'),
-                            ),
-                            FilledButton.icon(
-                              style:
-                                  FilledButton.styleFrom(backgroundColor: kRed),
-                              onPressed: () =>
-                                  setState(() => section = Section.movies),
-                              icon: const Icon(Icons.movie),
-                              label: const Text('Filmes'),
-                            ),
-                            FilledButton.icon(
-                              style:
-                                  FilledButton.styleFrom(backgroundColor: kRed),
-                              onPressed: () =>
-                                  setState(() => section = Section.series),
-                              icon: const Icon(Icons.video_library),
-                              label: const Text('Séries'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: showDiagnostics,
-                              icon: const Icon(Icons.info_outline),
-                              label: const Text('Diagnóstico'),
-                            ),
-                          ],
+                        OutlinedButton.icon(
+                          onPressed: showDiagnostics,
+                          icon: const Icon(Icons.info_outline),
+                          label: const Text('Diagnóstico'),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -1522,8 +1372,8 @@ class _CatalogPageState extends State<CatalogPage> {
                           ? Image.network(selected.logo,
                               height: 110,
                               errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.live_tv, size: 70))
-                          : const Icon(Icons.live_tv, size: 70),
+                                  const Icon(Icons.live_tv, size: 90))
+                          : const Icon(Icons.live_tv, size: 90),
                       const SizedBox(height: 18),
                       Text(selected.title,
                           textAlign: TextAlign.center,
@@ -1663,8 +1513,7 @@ class _PlayerPageState extends State<PlayerPage> {
   Future<void> initPlayer() async {
     try {
       final uri = Uri.parse(widget.item.url);
-      video = VideoPlayerController.networkUrl(uri,
-          httpHeaders: iptvHeaders(), formatHint: VideoFormat.other);
+      video = VideoPlayerController.networkUrl(uri, httpHeaders: iptvHeaders());
 
       await video!.initialize().timeout(const Duration(seconds: 60));
 

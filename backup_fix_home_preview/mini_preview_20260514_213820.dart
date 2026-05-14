@@ -47,7 +47,6 @@ class _MiniPreviewPlayerState extends State<MiniPreviewPlayer> {
       final c = VideoPlayerController.networkUrl(
         Uri.parse(widget.item.url),
         httpHeaders: iptvHeaders(),
-        formatHint: VideoFormat.other,
       );
 
       controller = c;
@@ -78,7 +77,7 @@ class _MiniPreviewPlayerState extends State<MiniPreviewPlayer> {
     return GestureDetector(
       onDoubleTap: widget.onFullscreen,
       child: Container(
-        height: 285,
+        height: 150,
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.black,
@@ -97,7 +96,7 @@ class _MiniPreviewPlayerState extends State<MiniPreviewPlayer> {
                       if (widget.item.logo.isNotEmpty)
                         Image.network(
                           widget.item.logo,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) {
                             return const Icon(Icons.live_tv, size: 72);
                           },
