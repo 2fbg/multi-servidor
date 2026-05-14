@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,19 +7,43 @@ import '../models/channel.dart';
 class M3UParser {
   static Future<List<Channel>> parseM3U(String url) async {
     final client = HttpClient();
+    client.connectionTimeout = const Duration(seconds: 15);
 
     try {
-      final request = await client.getUrl(Uri.parse(url));
-      final response = await request.close();
+      final uri = Uri.parse(url);
+
+      final request = await client
+          .getUrl(uri)
+          .timeout(const Duration(seconds: 15));
+
+      final response = await request
+          .close()
+          .timeout(const Duration(seconds: 20));
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Erro ao carregar lista M3U: ${response.statusCode}');
+        throw Exception('Servidor respondeu com erro: ${response.statusCode}');
       }
 
-      final content = await response.transform(utf8.decoder).join();
-      return parse(content);
+      final content = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(const Duration(seconds: 25));
+
+      final channels = parse(content);
+
+      if (channels.isEmpty) {
+        throw Exception('Nenhum canal encontrado na lista M3U.');
+      }
+
+      return channels;
+    } on TimeoutException {
+      throw Exception('Tempo esgotado ao tentar carregar a lista.');
+    } on SocketException {
+      throw Exception('Falha de conexão com o servidor.');
+    } on FormatException {
+      throw Exception('URL inválida.');
     } finally {
-      client.close();
+      client.close(force: true);
     }
   }
 
