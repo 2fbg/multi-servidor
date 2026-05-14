@@ -320,12 +320,21 @@ class _HomeScreenState extends State<HomeScreen> {
     var list = _baseForSection();
 
     if (_selectedGroup != 'Todos') {
-      list = list.where((c) => (c.group ?? 'Sem grupo') == _selectedGroup).toList();
+      if (_section == MainSection.series) {
+        list = list.where((c) => _seriesName(c.title) == _selectedGroup).toList();
+      } else {
+        list = list.where((c) => (c.group ?? 'Sem grupo') == _selectedGroup).toList();
+      }
     }
 
     final query = _search.text.trim().toLowerCase();
     if (query.isNotEmpty) {
-      list = list.where((c) => c.title.toLowerCase().contains(query)).toList();
+      list = list.where((c) {
+        final title = c.title.toLowerCase();
+        final group = (c.group ?? '').toLowerCase();
+        final serie = _seriesName(c.title).toLowerCase();
+        return title.contains(query) || group.contains(query) || serie.contains(query);
+      }).toList();
     }
 
     return list;
@@ -338,9 +347,17 @@ class _HomeScreenState extends State<HomeScreen> {
     counts['Todos'] = source.length;
 
     for (final channel in source) {
-      final group = (channel.group == null || channel.group!.trim().isEmpty)
-          ? 'Sem grupo'
-          : channel.group!.trim();
+      String group;
+
+      if (_section == MainSection.series) {
+        group = _seriesName(channel.title);
+      } else {
+        group = (channel.group == null || channel.group!.trim().isEmpty)
+            ? 'Sem grupo'
+            : channel.group!.trim();
+      }
+
+      if (group.trim().isEmpty) group = 'Sem grupo';
 
       counts[group] = (counts[group] ?? 0) + 1;
     }
@@ -349,6 +366,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ..sort((a, b) {
         if (a.key == 'Todos') return -1;
         if (b.key == 'Todos') return 1;
+
+        if (_section == MainSection.series) {
+          return a.key.toLowerCase().compareTo(b.key.toLowerCase());
+        }
+
         return b.value.compareTo(a.value);
       });
 
@@ -693,7 +715,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ChoiceChip(
                   selected: selected,
                   selectedColor: Colors.red,
-                  label: Text('${e.key} (${e.value})'),
+                  label: Text(
+                    '${e.key} (${e.value})',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   onSelected: (_) => setState(() => _selectedGroup = e.key),
                 ),
               );
@@ -707,6 +733,36 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  String _seriesName(String title) {
+    var name = title.trim();
+
+    // Remove padrões comuns de episódio:
+    // Ex: "13 Reasons Why S04E05" -> "13 Reasons Why"
+    // Ex: "Serie - S01 E02" -> "Serie"
+    final patterns = <RegExp>[
+      RegExp(r'\s*[-_.]?\s*S\d{1,2}\s*E\d{1,3}.*$', caseSensitive: false),
+      RegExp(r'\s*[-_.]?\s*S\d{1,2}\s*EP\d{1,3}.*$', caseSensitive: false),
+      RegExp(r'\s*[-_.]?\s*TEMP(?:ORADA)?\s*\d{1,2}\s*EP(?:ISODIO)?\s*\d{1,3}.*$', caseSensitive: false),
+      RegExp(r'\s*[-_.]?\s*T\d{1,2}\s*E\d{1,3}.*$', caseSensitive: false),
+      RegExp(r'\s*[-_.]?\s*\d{1,2}x\d{1,3}.*$', caseSensitive: false),
+      RegExp(r'\s*[-_.]?\s*EP(?:ISODIO)?\s*\d{1,3}.*$', caseSensitive: false),
+    ];
+
+    for (final p in patterns) {
+      name = name.replaceAll(p, '').trim();
+    }
+
+    // Remove finalizações comuns que ficam depois do nome.
+    name = name
+        .replaceAll(RegExp(r'\s+', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'\s*[-_.]\s*$', caseSensitive: false), '')
+        .trim();
+
+    if (name.isEmpty) return title.trim();
+
+    return name;
   }
 
   Widget _buildTopTabs() {
