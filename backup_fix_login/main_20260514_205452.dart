@@ -541,13 +541,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final userCtrl = TextEditingController();
   final passCtrl = TextEditingController();
-
-  final userFocus = FocusNode();
-  final passFocus = FocusNode();
-
   bool hide = true;
   bool savePassword = true;
-  bool submitting = false;
 
   @override
   void initState() {
@@ -555,191 +550,104 @@ class _LoginPageState extends State<LoginPage> {
     loadSaved();
   }
 
-  @override
-  void dispose() {
-    userCtrl.dispose();
-    passCtrl.dispose();
-    userFocus.dispose();
-    passFocus.dispose();
-    super.dispose();
-  }
-
   Future<void> loadSaved() async {
     final prefs = await SharedPreferences.getInstance();
-
     userCtrl.text = prefs.getString('login_user') ?? '';
     passCtrl.text = prefs.getString('login_pass') ?? '';
     savePassword = prefs.getBool('save_password') ?? true;
-
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   Future<void> save() async {
-    if (submitting) return;
-
     final user = userCtrl.text.trim();
     final pass = passCtrl.text.trim();
+    if (user.isEmpty || pass.isEmpty) return;
 
-    if (user.isEmpty || pass.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Digite usuário e senha para entrar.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('login_user', user);
+    await prefs.setBool('save_password', savePassword);
+
+    if (savePassword) {
+      await prefs.setString('login_pass', pass);
+    } else {
+      // Mantém senha só para a sessão atual.
+      await prefs.setString('login_pass', pass);
+      await prefs.setBool('erase_password_on_next_logout', true);
     }
 
-    setState(() => submitting = true);
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      await prefs.setString('login_user', user);
-      await prefs.setBool('save_password', savePassword);
-
-      if (savePassword) {
-        await prefs.setString('login_pass', pass);
-        await prefs.remove('erase_password_on_next_logout');
-      } else {
-        // Mantém a senha somente até sair do app pelo botão Sair.
-        await prefs.setString('login_pass', pass);
-        await prefs.setBool('erase_password_on_next_logout', true);
-      }
-
-      if (mounted) {
-        widget.onLogin();
-      }
-    } finally {
-      if (mounted) {
-        setState(() => submitting = false);
-      }
-    }
-  }
-
-  Widget loginContent(double maxHeight) {
-    final compact = maxHeight < 520;
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 560),
-      child: Card(
-        color: kPanel,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: compact ? 26 : 32,
-            vertical: compact ? 18 : 26,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.live_tv,
-                color: kRed,
-                size: compact ? 44 : 58,
-              ),
-              SizedBox(height: compact ? 6 : 12),
-              Text(
-                'Multi Servidor',
-                style: TextStyle(
-                  fontSize: compact ? 34 : 42,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: compact ? 16 : 24),
-              TextField(
-                controller: userCtrl,
-                focusNode: userFocus,
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                onSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(passFocus);
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Usuário',
-                  prefixIcon: Icon(Icons.person_outline),
-                ),
-              ),
-              SizedBox(height: compact ? 10 : 14),
-              TextField(
-                controller: passCtrl,
-                focusNode: passFocus,
-                obscureText: hide,
-                textInputAction: TextInputAction.done,
-                keyboardType: TextInputType.visiblePassword,
-                onSubmitted: (_) => save(),
-                decoration: InputDecoration(
-                  labelText: 'Senha',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    tooltip: hide ? 'Mostrar senha' : 'Ocultar senha',
-                    icon: Icon(hide ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => hide = !hide),
-                  ),
-                ),
-              ),
-              SizedBox(height: compact ? 6 : 10),
-              Row(
-                children: [
-                  Checkbox(
-                    value: savePassword,
-                    activeColor: kRed,
-                    onChanged: (v) => setState(() => savePassword = v ?? true),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Salvar senha neste aparelho',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: compact ? 8 : 14),
-              SizedBox(
-                width: double.infinity,
-                height: compact ? 46 : 52,
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: kRed),
-                  onPressed: submitting ? null : save,
-                  icon: submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.login),
-                  label: Text(submitting ? 'Entrando...' : 'Entrar'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    widget.onLogin();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBg,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Center(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                child: loginContent(constraints.maxHeight),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Card(
+              color: kPanel,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24)),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.live_tv, color: kRed, size: 54),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Multi Servidor',
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
+                    TextField(
+                      controller: userCtrl,
+                      decoration: const InputDecoration(labelText: 'Usuário'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: passCtrl,
+                      obscureText: hide,
+                      decoration: InputDecoration(
+                        labelText: 'Senha',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                              hide ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () => setState(() => hide = !hide),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    CheckboxListTile(
+                      value: savePassword,
+                      activeColor: kRed,
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Salvar senha neste aparelho'),
+                      subtitle: const Text(
+                        'Se desmarcar, a senha será removida ao sair.',
+                        style: TextStyle(fontSize: 12, color: Colors.white60),
+                      ),
+                      onChanged: (v) =>
+                          setState(() => savePassword = v ?? true),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: kRed),
+                        onPressed: save,
+                        child: const Text('Entrar'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
