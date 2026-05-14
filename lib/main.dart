@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
+part 'series_catalog_page.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MultiServidorApp());
@@ -856,6 +858,11 @@ class _HomePageState extends State<HomePage> {
             sourceSelector(),
             const Spacer(),
             IconButton(
+              tooltip: 'Home',
+              icon: const Icon(Icons.home),
+              onPressed: () => setState(() => section = Section.home),
+            ),
+            IconButton(
               tooltip: 'Diagnóstico',
               icon: const Icon(Icons.info_outline),
               onPressed: showDiagnostics,
@@ -1068,8 +1075,7 @@ class _HomePageState extends State<HomePage> {
         return CatalogPage(
             title: 'Filmes', items: movieItems, mode: CatalogMode.movies);
       case Section.series:
-        return CatalogPage(
-            title: 'Séries', items: seriesItems, mode: CatalogMode.series);
+        return SeriesCatalogPage(title: 'Séries', items: seriesItems);
       case Section.lists:
         return ListsPage(
           extraSources: extraSources,
