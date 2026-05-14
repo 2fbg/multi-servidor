@@ -1,8 +1,41 @@
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/channel.dart';
 
+class M3ULoadResult {
+  final List<Channel> channels;
+  final int? statusCode;
+  final int bodyLength;
+  final int extinfCount;
+  final String preview;
+  final String? error;
+  final String urlMasked;
+
+  M3ULoadResult({
+    required this.channels,
+    required this.statusCode,
+    required this.bodyLength,
+    required this.extinfCount,
+    required this.preview,
+    required this.error,
+    required this.urlMasked,
+  });
+
+  bool get success => channels.isNotEmpty;
+}
+
 class M3UParser {
   static Future<List<Channel>> parseM3U(String url, {String? sourceName}) async {
+    final result = await parseWithDiagnostics(url, sourceName: sourceName);
+    return result.channels;
+  }
+
+  static Future<M3ULoadResult> parseWithDiagnostics(
+    String url, {
+    String? sourceName,
+  }) async {
+    final masked = _maskUrl(url);
+
     try {
       final response = await http.get(
         Uri.parse(url),
@@ -13,60 +46,108 @@ class M3UParser {
         },
       ).timeout(const Duration(seconds: 90));
 
+      final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+      final preview = body.length > 300 ? body.substring(0, 300) : body;
+      final extinfCount = RegExp(r'#EXTINF', caseSensitive: false).allMatches(body).length;
+
       if (response.statusCode != 200) {
-        return [];
+        return M3ULoadResult(
+          channels: [],
+          statusCode: response.statusCode,
+          bodyLength: body.length,
+          extinfCount: extinfCount,
+          preview: preview,
+          error: 'HTTP ${response.statusCode}',
+          urlMasked: masked,
+        );
       }
 
-      final body = response.body.trim();
-
-      if (body.isEmpty) {
-        return [];
+      if (body.trim().isEmpty) {
+        return M3ULoadResult(
+          channels: [],
+          statusCode: response.statusCode,
+          bodyLength: body.length,
+          extinfCount: extinfCount,
+          preview: preview,
+          error: 'Resposta vazia',
+          urlMasked: masked,
+        );
       }
 
       if (!body.contains('#EXTINF')) {
-        return [];
+        return M3ULoadResult(
+          channels: [],
+          statusCode: response.statusCode,
+          bodyLength: body.length,
+          extinfCount: extinfCount,
+          preview: preview,
+          error: 'Resposta não contém #EXTINF',
+          urlMasked: masked,
+        );
       }
 
-      final lines = body.split(RegExp(r'\r?\n'));
-      final channels = <Channel>[];
-      Channel? current;
+      final channels = _parseBody(body, sourceName: sourceName);
 
-      for (final raw in lines) {
-        final line = raw.trim();
-
-        if (line.isEmpty) continue;
-
-        if (line.startsWith('#EXTINF:')) {
-          final title = _extractTitle(line);
-          final attrs = _extractAttrs(line);
-          final group = attrs['group-title'] ?? attrs['group'] ?? 'Geral';
-
-          current = Channel(
-            id: '${sourceName ?? 'src'}_${channels.length}_${title.hashCode}',
-            title: title.isEmpty ? 'Sem título' : title,
-            group: group,
-            logo: attrs['tvg-logo'],
-            sourceName: sourceName,
-            type: _detectType(title, group, null),
-          );
-        } else if ((line.startsWith('http://') || line.startsWith('https://')) && current != null) {
-          final type = _detectType(current.title, current.group, line);
-
-          channels.add(
-            current.copyWith(
-              streamUrl: line,
-              type: type,
-            ),
-          );
-
-          current = null;
-        }
-      }
-
-      return channels;
-    } catch (_) {
-      return [];
+      return M3ULoadResult(
+        channels: channels,
+        statusCode: response.statusCode,
+        bodyLength: body.length,
+        extinfCount: extinfCount,
+        preview: preview,
+        error: channels.isEmpty ? 'Nenhum canal parseado' : null,
+        urlMasked: masked,
+      );
+    } catch (e) {
+      return M3ULoadResult(
+        channels: [],
+        statusCode: null,
+        bodyLength: 0,
+        extinfCount: 0,
+        preview: '',
+        error: e.toString(),
+        urlMasked: masked,
+      );
     }
+  }
+
+  static List<Channel> _parseBody(String body, {String? sourceName}) {
+    final lines = body.split(RegExp(r'\r?\n'));
+    final channels = <Channel>[];
+    Channel? current;
+
+    for (final raw in lines) {
+      final line = raw.trim();
+
+      if (line.isEmpty) continue;
+
+      if (line.startsWith('#EXTINF:')) {
+        final title = _extractTitle(line);
+        final attrs = _extractAttrs(line);
+        final group = _cleanGroup(attrs['group-title'] ?? attrs['group'] ?? 'Sem grupo');
+
+        current = Channel(
+          id: '${sourceName ?? 'src'}_${channels.length}_${title.hashCode}',
+          title: title.isEmpty ? 'Sem título' : title,
+          group: group,
+          logo: attrs['tvg-logo'],
+          sourceName: sourceName,
+          type: _detectType(title, group, null),
+        );
+      } else if ((line.startsWith('http://') || line.startsWith('https://')) && current != null) {
+        final fixedType = _detectType(current.title, current.group, line);
+
+        channels.add(
+          current.copyWith(
+            streamUrl: line,
+            type: fixedType,
+          ),
+        );
+
+        current = null;
+      }
+    }
+
+    return channels;
   }
 
   static String _extractTitle(String line) {
@@ -96,16 +177,27 @@ class M3UParser {
     return attrs;
   }
 
-  static ChannelType _detectType(String title, String? group, String? url) {
-    final text = '${title.toLowerCase()} ${(group ?? '').toLowerCase()} ${(url ?? '').toLowerCase()}';
+  static String _cleanGroup(String group) {
+    return group
+        .replaceAll('|', ' | ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
 
+  static ChannelType _detectType(String title, String? group, String? url) {
+    final t = title.toLowerCase();
+    final g = (group ?? '').toLowerCase();
+    final u = (url ?? '').toLowerCase();
+    final text = '$t $g $u';
+
+    // Séries primeiro, pois várias séries também usam palavras parecidas com filme.
     final seriesWords = [
-      'série',
-      'serie',
-      'series',
-      'séries',
       '/series/',
       '/serie/',
+      'series',
+      'séries',
+      'serie',
+      'série',
       'temporada',
       'season',
       'episodio',
@@ -123,32 +215,56 @@ class M3UParser {
       'e04',
     ];
 
+    for (final word in seriesWords) {
+      if (text.contains(word)) return ChannelType.series;
+    }
+
     final movieWords = [
+      '/movie/',
+      '/movies/',
+      '/filme/',
+      '/filmes/',
       'filme',
       'filmes',
       'movie',
       'movies',
       'cinema',
       'vod',
-      '/movie/',
-      '/movies/',
-      '/filme/',
-      '/filmes/',
       'lançamento',
       'lancamento',
-      'bluray',
-      'dub',
-      'legendado',
+      'top 10',
+      'ação',
+      'acao',
+      'crime',
+      'guerra',
+      'animação',
+      'animacao',
+      'infantil',
+      'família',
+      'familia',
+      'drama',
+      'comédia',
+      'comedia',
+      'terror',
+      'suspense',
+      'romance',
+      'ficção',
+      'ficcao',
+      'aventura',
+      'documentário',
+      'documentario',
     ];
-
-    for (final word in seriesWords) {
-      if (text.contains(word)) return ChannelType.series;
-    }
 
     for (final word in movieWords) {
       if (text.contains(word)) return ChannelType.movie;
     }
 
     return ChannelType.live;
+  }
+
+  static String _maskUrl(String url) {
+    return url
+        .replaceAll(RegExp(r'username=[^&]+'), 'username=***')
+        .replaceAll(RegExp(r'password=[^&]+'), 'password=***');
   }
 }
