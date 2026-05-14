@@ -46,10 +46,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
       final controller = VideoPlayerController.networkUrl(
         Uri.parse(url),
-        httpHeaders: const {'User-Agent': 'MultiServidor/1.0'},
+        httpHeaders: const {
+          'User-Agent': 'Mozilla/5.0 MultiServidor',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+        },
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
 
-      await controller.initialize().timeout(const Duration(seconds: 15));
+      await controller.initialize().timeout(const Duration(seconds: 35));
 
       final chewie = ChewieController(
         videoPlayerController: controller,
@@ -59,14 +64,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
         allowPlaybackSpeedChanging: true,
         showControls: true,
         playbackSpeeds: const [0.5, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0],
+        materialProgressColors: ChewieProgressColors(
+          playedColor: Colors.red,
+          handleColor: Colors.red,
+          backgroundColor: Colors.white24,
+          bufferedColor: Colors.white54,
+        ),
         errorBuilder: (context, errorMessage) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Text(
-                'Não foi possível reproduzir este conteúdo.\n$errorMessage',
+                'Não foi possível reproduzir.\n\n$errorMessage',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white70),
               ),
             ),
           );
@@ -80,11 +91,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
         _chewie = chewie;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _error = 'Falha ao abrir o vídeo. Tente outro link ou servidor.';
+        _error = 'Falha ao abrir o vídeo.\n\nDetalhe técnico:\n$e\n\nTente outro canal, outro servidor ou playlist em formato M3U8.';
         _loading = false;
       });
     }
@@ -122,7 +133,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
       return Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(title: Text(widget.channel.title)),
-        body: const Center(child: CircularProgressIndicator(color: Colors.red)),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Colors.red),
+              SizedBox(height: 16),
+              Text('Abrindo player...', style: TextStyle(color: Colors.white70)),
+            ],
+          ),
+        ),
       );
     }
 
@@ -136,7 +156,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             child: Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ),
         ),
@@ -148,7 +168,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       appBar: AppBar(title: Text(widget.channel.title)),
       body: Center(
         child: AspectRatio(
-          aspectRatio: _video!.value.aspectRatio,
+          aspectRatio: _video!.value.aspectRatio <= 0 ? 16 / 9 : _video!.value.aspectRatio,
           child: Chewie(controller: _chewie!),
         ),
       ),

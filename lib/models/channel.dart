@@ -1,3 +1,10 @@
+enum ChannelType {
+  live,
+  movie,
+  series,
+  unknown,
+}
+
 class Channel {
   final String id;
   final String title;
@@ -5,6 +12,7 @@ class Channel {
   final String? logo;
   final String? streamUrl;
   final String? sourceName;
+  final ChannelType type;
 
   Channel({
     required this.id,
@@ -13,6 +21,7 @@ class Channel {
     this.logo,
     this.streamUrl,
     this.sourceName,
+    this.type = ChannelType.unknown,
   });
 
   Channel copyWith({
@@ -22,6 +31,7 @@ class Channel {
     String? logo,
     String? streamUrl,
     String? sourceName,
+    ChannelType? type,
   }) {
     return Channel(
       id: id ?? this.id,
@@ -30,6 +40,7 @@ class Channel {
       logo: logo ?? this.logo,
       streamUrl: streamUrl ?? this.streamUrl,
       sourceName: sourceName ?? this.sourceName,
+      type: type ?? this.type,
     );
   }
 }

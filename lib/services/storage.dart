@@ -68,6 +68,7 @@ class AppStorage {
       'logo': channel.logo,
       'streamUrl': channel.streamUrl,
       'sourceName': channel.sourceName,
+      'type': channel.type.name,
       'position': position.inMilliseconds,
       'duration': duration.inMilliseconds,
       'updatedAt': DateTime.now().toIso8601String(),
@@ -100,6 +101,12 @@ class AppStorage {
     for (final raw in rawList) {
       try {
         final json = jsonDecode(raw);
+        final typeName = json['type'] ?? 'unknown';
+        final type = ChannelType.values.firstWhere(
+          (e) => e.name == typeName,
+          orElse: () => ChannelType.unknown,
+        );
+
         result.add(Channel(
           id: json['id'] ?? '',
           title: json['title'] ?? 'Sem título',
@@ -107,6 +114,7 @@ class AppStorage {
           logo: json['logo'],
           streamUrl: json['streamUrl'],
           sourceName: json['sourceName'],
+          type: type,
         ));
       } catch (_) {}
     }

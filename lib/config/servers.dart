@@ -4,6 +4,7 @@ class Server {
   final String username;
   final String password;
   final bool directUrl;
+  final String outputFormat;
 
   const Server({
     required this.name,
@@ -11,6 +12,7 @@ class Server {
     required this.username,
     required this.password,
     this.directUrl = false,
+    this.outputFormat = 'm3u8',
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +21,7 @@ class Server {
         'username': username,
         'password': password,
         'directUrl': directUrl,
+        'outputFormat': outputFormat,
       };
 
   factory Server.fromJson(Map<String, dynamic> json) {
@@ -28,6 +31,7 @@ class Server {
       username: json['username'] ?? '',
       password: json['password'] ?? '',
       directUrl: json['directUrl'] == true,
+      outputFormat: json['outputFormat'] ?? 'm3u8',
     );
   }
 }
@@ -51,6 +55,12 @@ class ServerConfig {
     }
 
     final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
-    return '$base/get.php?username=${Uri.encodeComponent(server.username)}&password=${Uri.encodeComponent(server.password)}&type=m3u_plus&output=mpegts';
+    return '$base/get.php?username=${Uri.encodeComponent(server.username)}&password=${Uri.encodeComponent(server.password)}&type=m3u_plus&output=${server.outputFormat}';
+  }
+
+  static String safeUrlForDebug(Server server) {
+    if (server.directUrl) return server.baseUrl;
+    final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+    return '$base/get.php?username=***&password=***&type=m3u_plus&output=${server.outputFormat}';
   }
 }

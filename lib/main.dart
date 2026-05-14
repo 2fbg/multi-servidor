@@ -307,27 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Channel> get _filteredChannels {
     if (_filter == CategoryFilter.all) return _channels;
-
-    return _channels.where((channel) {
-      final group = (channel.group ?? '').toLowerCase();
-      final title = channel.title.toLowerCase();
-
-      if (_filter == CategoryFilter.movies) {
-        return group.contains('filme') || group.contains('movie') || title.contains('filme');
-      }
-
-      if (_filter == CategoryFilter.series) {
-        return group.contains('serie') || group.contains('série') || group.contains('series') || title.contains('s0');
-      }
-
-      if (_filter == CategoryFilter.live) {
-        final isMovie = group.contains('filme') || group.contains('movie');
-        final isSeries = group.contains('serie') || group.contains('série') || group.contains('series');
-        return !isMovie && !isSeries;
-      }
-
-      return true;
-    }).toList();
+    return _channelsByType(_filter);
   }
 
   Future<void> _openPlayer(Channel channel) async {
@@ -705,11 +685,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Channel> _channelsByType(CategoryFilter type) {
-    final old = _filter;
-    _filter = type;
-    final result = _filteredChannels;
-    _filter = old;
-    return result;
+    if (type == CategoryFilter.all) return _channels;
+
+    return _channels.where((channel) {
+      if (type == CategoryFilter.live) return channel.type == ChannelType.live;
+      if (type == CategoryFilter.movies) return channel.type == ChannelType.movie;
+      if (type == CategoryFilter.series) return channel.type == ChannelType.series;
+      return true;
+    }).toList();
   }
 
   Widget _buildSection(String title, List<Channel> list) {
