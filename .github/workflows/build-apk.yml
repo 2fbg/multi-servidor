@@ -3,26 +3,30 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:   # Permite rodar manualmente
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'   # versão estável atual
-          channel: 'stable'
+          flutter-version: '3.24.0'
+          channel: stable
           cache: true
 
       - name: Install dependencies
