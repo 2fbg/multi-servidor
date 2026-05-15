@@ -14,7 +14,6 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 part 'series_catalog_page.dart';
-part 'tvbox_layout.dart';
 part 'mini_preview_player.dart';
 
 void main() async {
@@ -118,6 +117,8 @@ class PlaylistSource {
   }
 }
 
+
+
 bool isRestrictedIptvItem(StreamItem item) {
   final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
 
@@ -161,7 +162,6 @@ bool isProbablyVodGroup(String group) {
       g.contains('romance') ||
       g.contains('drama');
 }
-
 class StreamItem {
   final String title;
   final String url;
@@ -1199,6 +1199,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+
   Widget homeRail(String title, List<StreamItem> list, IconData icon) {
     if (list.isEmpty) return const SizedBox.shrink();
 
@@ -1207,9 +1208,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text(title,
-              style:
-                  const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          child: Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 190,
@@ -1242,8 +1241,7 @@ class _HomePageState extends State<HomePage> {
                                 item.logo,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    Center(child: Icon(icon, size: 52)),
+                                errorBuilder: (_, __, ___) => Center(child: Icon(icon, size: 52)),
                               )
                             : Center(child: Icon(icon, size: 52)),
                       ),
@@ -1273,12 +1271,9 @@ class _HomePageState extends State<HomePage> {
       child: ListView(
         padding: const EdgeInsets.all(18),
         children: [
-          homeRail('🔥 Lançamentos / VOD', movieItems.take(30).toList(),
-              Icons.movie),
-          homeRail(
-              '📺 Canais ao vivo', liveItems.take(30).toList(), Icons.live_tv),
-          homeRail(
-              '🍿 Séries', seriesItems.take(30).toList(), Icons.video_library),
+          homeRail('🔥 Lançamentos / VOD', movieItems.take(30).toList(), Icons.movie),
+          homeRail('📺 Canais ao vivo', liveItems.take(30).toList(), Icons.live_tv),
+          homeRail('🍿 Séries', seriesItems.take(30).toList(), Icons.video_library),
         ],
       ),
     );
@@ -1309,23 +1304,7 @@ class _HomePageState extends State<HomePage> {
 
     switch (section) {
       case Section.home:
-        return TvBoxHomePage(
-          sourceName: selectedSource.name,
-          liveCount: liveItems.length,
-          movieCount: movieItems.length,
-          seriesCount: seriesItems.length,
-          extraCount: extraSources.length,
-          highlights: movieItems
-              .where((e) => !isRestrictedIptvItem(e))
-              .take(36)
-              .toList(),
-          onOpenLive: () => setState(() => section = Section.live),
-          onOpenMovies: () => setState(() => section = Section.movies),
-          onOpenSeries: () => setState(() => section = Section.series),
-          onOpenLists: () => setState(() => section = Section.lists),
-          onOpenSettings: () => setState(() => section = Section.settings),
-          onLogout: logout,
-        );
+        return home();
       case Section.live:
         return CatalogPage(
             title: 'Ao Vivo', items: liveItems, mode: CatalogMode.channels);
@@ -1660,8 +1639,7 @@ class _PlayerPageState extends State<PlayerPage> {
   Future<void> initPlayer() async {
     try {
       final uri = Uri.parse(widget.item.url);
-      video = VideoPlayerController.networkUrl(uri,
-          httpHeaders: iptvHeaders(), formatHint: VideoFormat.other);
+      video = VideoPlayerController.networkUrl(uri, httpHeaders: iptvHeaders(), formatHint: VideoFormat.other);
 
       await video!.initialize().timeout(const Duration(seconds: 60));
 
@@ -1681,8 +1659,7 @@ class _PlayerPageState extends State<PlayerPage> {
         allowFullScreen: true,
         allowPlaybackSpeedChanging: true,
         showControls: true,
-        aspectRatio:
-            video!.value.aspectRatio <= 0 ? 16 / 9 : video!.value.aspectRatio,
+        aspectRatio: video!.value.aspectRatio <= 0 ? 16 / 9 : video!.value.aspectRatio,
         playbackSpeeds: const [0.5, 1, 1.25, 1.5, 2, 2.5, 3],
         deviceOrientationsOnEnterFullScreen: const [
           DeviceOrientation.landscapeLeft,
@@ -1714,8 +1691,7 @@ class _PlayerPageState extends State<PlayerPage> {
     if (pos > 30000) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('progress_${widget.item.url}', pos);
-      await prefs.setString(
-          'progress_title_${widget.item.url}', widget.item.title);
+      await prefs.setString('progress_title_${widget.item.url}', widget.item.title);
     }
   }
 
@@ -1754,8 +1730,7 @@ class _PlayerPageState extends State<PlayerPage> {
   void handleVerticalDrag(DragUpdateDetails details) {
     final width = MediaQuery.of(context).size.width;
     final dx = details.globalPosition.dx;
-    final delta =
-        details.primaryDelta == null ? 0.0 : details.primaryDelta! / 300;
+    final delta = details.primaryDelta == null ? 0.0 : details.primaryDelta! / 300;
 
     if (dx < width / 2) {
       adjustBrightness(delta);
@@ -1809,10 +1784,8 @@ class _PlayerPageState extends State<PlayerPage> {
         child: FittedBox(
           fit: BoxFit.cover,
           child: SizedBox(
-            width:
-                video!.value.size.width <= 0 ? 1920 : video!.value.size.width,
-            height:
-                video!.value.size.height <= 0 ? 1080 : video!.value.size.height,
+            width: video!.value.size.width <= 0 ? 1920 : video!.value.size.width,
+            height: video!.value.size.height <= 0 ? 1080 : video!.value.size.height,
             child: Chewie(controller: chewie!),
           ),
         ),
@@ -1832,8 +1805,7 @@ class _PlayerPageState extends State<PlayerPage> {
               top: 12,
               child: SafeArea(
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back,
-                      color: Colors.white, size: 30),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -1841,16 +1813,14 @@ class _PlayerPageState extends State<PlayerPage> {
             if (overlayText != null)
               Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(.72),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
                     overlayText!,
-                    style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
