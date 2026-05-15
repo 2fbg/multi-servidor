@@ -2,7 +2,6 @@ enum ChannelType {
   live,
   movie,
   series,
-  unknown,
 }
 
 class Channel {
@@ -21,7 +20,7 @@ class Channel {
     this.logo,
     this.streamUrl,
     this.sourceName,
-    this.type = ChannelType.unknown,
+    this.type = ChannelType.live,
   });
 
   Channel copyWith({
