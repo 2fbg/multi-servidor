@@ -137,23 +137,6 @@ bool isHomeMovieHighlight(StreamItem item) {
       text.contains('adicionados recentemente');
 }
 
-bool isCurrentYearMovieHighlight(StreamItem item) {
-  final year = DateTime.now().year.toString();
-  final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
-
-  if (item.kind != ItemKind.movie) return false;
-  if (isRestrictedIptvItem(item)) return false;
-
-  return text.contains(year) ||
-      text.contains('cinema $year') ||
-      text.contains('filmes $year') ||
-      text.contains('filme $year') ||
-      text.contains('lançamento') ||
-      text.contains('lancamento') ||
-      text.contains('lançamentos') ||
-      text.contains('lancamentos');
-}
-
 bool isRestrictedIptvItem(StreamItem item) {
   final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
 
@@ -446,6 +429,7 @@ class M3uService {
   static ItemKind classifyItem(String title, String group, String url) {
     final t = title.toLowerCase();
     final u = url.toLowerCase();
+
     final g = group
         .toLowerCase()
         .replaceAll('♠', '')
@@ -457,36 +441,57 @@ class M3uService {
     bool has(List<String> words) => words.any((w) => g.contains(w));
     bool starts(List<String> words) => words.any((w) => g.startsWith(w));
 
-    if (u.contains('/movie/') || u.contains('/vod/')) return ItemKind.movie;
-    if (u.contains('/series/')) return ItemKind.series;
+    // URL tem prioridade alta.
+    if (u.contains('/movie/') || u.contains('/vod/')) {
+      return ItemKind.movie;
+    }
 
-    if (starts(['filme', 'filmes', 'movie', 'movies', 'vod', 'cinema']) ||
+    if (u.contains('/series/')) {
+      return ItemKind.series;
+    }
+
+    // Grupos de filmes/VOD antes de séries e ao vivo.
+    if (starts([
+          'filme',
+          'filmes',
+          'movie',
+          'movies',
+          'vod',
+          'cinema',
+          'lancamento',
+          'lançamento',
+        ]) ||
         has([
           'filmes |',
           'filme |',
-          'movie |',
           'movies |',
+          'movie |',
           'vod |',
           'reels',
           'short',
-          'dorama',
-          'lançamento',
-          'lancamento',
-          'novidade',
-          'comédia',
-          'comedia',
+          'doramas',
+          'novidades',
           'ação',
           'acao',
           'aventura',
+          'comedia',
+          'comédia',
           'terror',
           'suspense',
           'romance',
-          'drama'
+          'drama',
         ])) {
       return ItemKind.movie;
     }
 
-    if (starts(['serie', 'série', 'series', 'séries', 'seriado', 'novela']) ||
+    if (starts([
+          'series',
+          'séries',
+          'serie',
+          'série',
+          'seriados',
+          'novelas',
+        ]) ||
         has([
           'series |',
           'séries |',
@@ -494,7 +499,7 @@ class M3uService {
           'série |',
           'temporada',
           'episodio',
-          'episódio'
+          'episódio',
         ])) {
       return ItemKind.series;
     }
@@ -504,7 +509,9 @@ class M3uService {
       caseSensitive: false,
     );
 
-    if (seriesPattern.hasMatch('$t $g')) return ItemKind.series;
+    if (seriesPattern.hasMatch('$t $g')) {
+      return ItemKind.series;
+    }
 
     return ItemKind.live;
   }
@@ -1332,8 +1339,7 @@ class _HomePageState extends State<HomePage> {
           movieCount: movieItems.length,
           seriesCount: seriesItems.length,
           extraCount: extraSources.length,
-          highlights:
-              movieItems.where(isCurrentYearMovieHighlight).take(40).toList(),
+          highlights: movieItems.where(isHomeMovieHighlight).take(36).toList(),
           onOpenLive: () => setState(() => section = Section.live),
           onOpenMovies: () => setState(() => section = Section.movies),
           onOpenSeries: () => setState(() => section = Section.series),
