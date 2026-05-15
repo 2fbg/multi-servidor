@@ -1,0 +1,3477 @@
+==============================
+DIAGNÓSTICO MULTI SERVIDOR
+==============================
+
+DATA:
+Fri May 15 12:53:39 UTC 2026
+
+==============================
+GIT STATUS
+==============================
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	diagnostico_repo.txt
+	gerar_diagnostico_repo.sh
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+==============================
+ÚLTIMOS COMMITS
+==============================
+00586deec0 trigger build after rollback to d5c7324
+d5c7324000 Corrige login horizontal e enter para entrar
+7dbdb9d9e4 Trava horizontal adiciona voltar preview e melhora player
+b7ba600aa8 Remove script temporario de ajuste
+f3fe51636b Adiciona tela de series agrupada por temporada
+c9d8324ed8 Carrega lista individual com cache e corrige menu IPTV
+ebdf124ca9 Corrige carregamento M3U MPEGTS e navegacao TV Box
+37a2579054 corrige agrupamento de series por nome
+385bc70711 classificacao tvbox e diagnostico m3u
+7f05b9ca62 corrige timeout links mpegts
+
+==============================
+ESTRUTURA DO PROJETO
+==============================
+.dart_tool/dartpad/web_plugin_registrant.dart
+.dart_tool/package_config.json
+.dart_tool/package_graph.json
+.dart_tool/version
+.flutter-plugins-dependencies
+.git/COMMIT_EDITMSG
+.git/FETCH_HEAD
+.git/HEAD
+.git/ORIG_HEAD
+.git/config
+.git/description
+.git/gk/config
+.git/hooks/applypatch-msg.sample
+.git/hooks/commit-msg.sample
+.git/hooks/fsmonitor-watchman.sample
+.git/hooks/post-checkout
+.git/hooks/post-commit
+.git/hooks/post-merge
+.git/hooks/post-update.sample
+.git/hooks/pre-applypatch.sample
+.git/hooks/pre-commit.sample
+.git/hooks/pre-merge-commit.sample
+.git/hooks/pre-push
+.git/hooks/pre-push.sample
+.git/hooks/pre-rebase.sample
+.git/hooks/pre-receive.sample
+.git/hooks/prepare-commit-msg.sample
+.git/hooks/push-to-checkout.sample
+.git/hooks/sendemail-validate.sample
+.git/hooks/update.sample
+.git/index
+.git/info/exclude
+.git/logs/HEAD
+.git/objects/00/586deec0262a9ee6c732917f368f08db69c585
+.git/objects/01/3cc47367b661e85ddbd772a45968d79e14446f
+.git/objects/01/834536ffee93bad0f7276d0e5b2a2a182e678f
+.git/objects/01/c82e3e847719937cabe18520fbaf1742a34de5
+.git/objects/01/deb9eafdc25cbe162169270105c0498fef9e73
+.git/objects/01/f47f4b1349112220232960ebb1b1d934213415
+.git/objects/03/ce963095c54a7b043d80c85371e4da1ddc12ad
+.git/objects/04/67bf12aa4d28f374bb26596605a46dcbb3e7c8
+.git/objects/04/c6c2033cb1f34b561b5b2a4dfc3f6c1ccb1475
+.git/objects/05/767559c7884c71e9910b0a2a71d1f624f81b0c
+.git/objects/05/92653d9c21936c2d19043c4b26f183c9df9ee5
+.git/objects/06/952be745f9fa6fa75196e830d9578eb2ee631d
+.git/objects/07/bac254ec806e62e9da0e0240bb027670cba8cd
+.git/objects/07/c9fabe03f470cc198d9ed3ea57c026f98129f5
+.git/objects/08/450a4f15244e59cef539a8d96e3dbe80d85015
+.git/objects/08/59fdb29ccd8bdcc310a9a5a8a511bf5de616ca
+.git/objects/08/5b079347ff7f9cd3dc4c6330fb5aaac38e637a
+.git/objects/09/029c1936eac46946dfc92b0d8e6643a7b5aff4
+.git/objects/09/d4391482be68e9e4a07fab769b5de337d16eb1
+.git/objects/0a/3f5fa40fb3d1e0710331a48de5d256da3f275d
+.git/objects/0a/61f931cca1845b610b040890e64467b40e3482
+.git/objects/0b/6efb14240b4a45bf1cf142c0a642d348e42bb7
+.git/objects/0b/96699766f0dbd98d4bb750551af812ecd41eab
+.git/objects/0b/aa63dd85eb4d30cdba20a4d26127d71a76ecbd
+.git/objects/0b/edcf2fd46788ae3a01a423467513ff59b5c120
+.git/objects/0c/507538547f58e428ce2941d02b3d53db7bf853
+.git/objects/0c/84a1f1ec14c3112893d6e70e3c05ae3f455556
+.git/objects/0d/066a4989447783783f958304ca591aa765128c
+.git/objects/0d/2902135caece481a035652d88970c80e29cc7e
+.git/objects/0e/3150e41a549d82050f08fd19b40220a2e442d0
+.git/objects/0e/41ed212ff75fbd8055e8699910fbe336c3f5b0
+.git/objects/0e/699fe7a8beb31b98d73d40c38f30251b6436d4
+.git/objects/0e/c303439225b78712f49115768196d8d76f6790
+.git/objects/0f/2d09ac3a85018e621a0d6156b8d568ce69c928
+.git/objects/0f/a7766ab8c99bf494e06737a6bb1862bed98349
+.git/objects/10/4f4d00a464b3f54e84f8c67a00457d24b62a0c
+.git/objects/10/e7bead86e41a7e8dae3efa99716e775db871eb
+.git/objects/12/2f7d8120a7b5be7d05fb0c0b25f519eb731c43
+.git/objects/13/1de54bfd05c7f818acb771532d4ec88a95cc40
+.git/objects/13/5e0e2d5c345f872337b0eb69363a2518192c43
+.git/objects/13/9befe1498a152a50a4bd3fa257bf149f6ec646
+.git/objects/13/b35eba55c6dabc3aac36f33d859266c18fa0d0
+.git/objects/14/1e87fd8f9abe3d732b24be9e6b777f40f667d2
+.git/objects/14/8da3098986ea6c098d5a7b1f8e9cbf6b427b56
+.git/objects/14/c7e9613bcdeaeb989fff6d040ed60ac4a6ed9d
+.git/objects/14/d0450194d4e3fdaa8930dc621f96cffcf1c68e
+.git/objects/14/da8393f6126029e71c50dea30ecdf56c9f9b64
+.git/objects/15/3653e8d67f81b901d28257a65908f3278e058d
+.git/objects/15/60c60ad5226d6f99cf992e15209caa3b449581
+.git/objects/16/bd519c337d5f5aaec79d047d3ea9d3a9214d78
+.git/objects/17/1c3211ae028e1767248b2570113ab788846ed2
+.git/objects/17/3b948bc0b31e8c91d48dad7fc31fb3d259721e
+.git/objects/17/987b79bb8a35cc66c3c1fd44f5a5526c1b78be
+.git/objects/17/e9516a74074fad22bac3e52e39131886697622
+.git/objects/18/2a53d93b8896bc26c7bc5a61549fdda1bb14b7
+.git/objects/18/d979bc51fc3200dd0244397155270d289e3686
+.git/objects/18/d981003d68d0546c4804ac2ff47dd97c6e7921
+.git/objects/19/e5a39c76c7f76979fe279abcd6bdc98ea99d3a
+.git/objects/1a/135402cf484f0857fd2f72269eaab99396824a
+.git/objects/1a/9232ffc212522a1837295e24e2cc3708629bb4
+.git/objects/1a/cd8486abc958854faf0b7ef31032b5d6ad41ed
+.git/objects/1b/786defd0a6a25e30c09a6b0b8adda975795e5d
+.git/objects/1b/9b28ccac41d923eb0e8254561f4c4edc836ab7
+.git/objects/1b/a65d7f84e9f8b4d4b826e177a1f2e696a37347
+.git/objects/1c/4cfdd96a89b0095dbd29a6ca194e41ad77b4fd
+.git/objects/1c/571f99a09ff531a12434a36e2feb8cbbd3ed49
+.git/objects/1c/e67548acca1f96748e475c6f247fea074ed6fb
+.git/objects/1d/526a16ed0f1cd0c2409d848bf489b93fefa3b2
+.git/objects/1e/019c87339114f8efd4a31ee1cfaec2d4a09917
+.git/objects/1e/07d4e572aa54b209685c1a55a1bf0dad57c2af
+.git/objects/1e/79457cc36ac5137f92bf1131d21b271ff033eb
+.git/objects/1e/c430e0ffd3d04592e05fb44992c745ef2ba235
+.git/objects/20/59da2cfd13089bbab1b4af645d475a9df7b9d0
+.git/objects/20/86545fda7b9373fd9cfe6925ca53526eac5204
+.git/objects/22/7d091598d864ef5760d2c6cfa7eb77dafc524b
+.git/objects/22/c4462b79288fe10768cc571a36732ce5726025
+.git/objects/22/edd3783be4591129c98aeec0777bb6a81941fa
+.git/objects/23/7e8b500e885b0c95d56006e12c239868fdeab8
+.git/objects/24/64fe40fe6639f7bc8f363bfdbf50402a56f138
+.git/objects/25/06c7ac7fa5fac30b8d6cb2cbbad73725e8a4eb
+.git/objects/25/0deae04c5ff1ba333e131f2fd0c03f978999e1
+.git/objects/25/4fb2bc9b67a1b6a31b07cf24010c669a8e21a7
+.git/objects/26/714d1aec043b2b21e647788940aeca18c5c9ba
+.git/objects/26/7eb1aa58850bbc8863fb95bdcccd5bc9d6c4a8
+.git/objects/26/9008abe7d3b21f23245648f962cd0b2888e020
+.git/objects/26/eb260bd5ab5c9c65bfb13fe1ebbc490089c84c
+.git/objects/27/8268b3c89513b163b9bb4fc20a91c870b8eedf
+.git/objects/27/c49000dd31829bac8efb67c343fdc73be4501e
+.git/objects/27/c9a732758e0e1207a1b4ff5e1a066ff4bd47e8
+.git/objects/28/316bd3aec2f8faeeec144708ad6339b29aaf58
+.git/objects/29/6d6addb6e933da04325d0e547b1449ad9476d9
+.git/objects/2a/fcf8a2ae8f5b9000bc5338e2c06f144955c827
+.git/objects/2b/2ee24104e86e7da9c7d1ac33827aa11ef09047
+.git/objects/2b/7d7418114e61fe601440d1e263a29cab873104
+.git/objects/2b/9917949400986e1c7350f58e90ea3864e862e9
+.git/objects/2b/bf8c93db36d1c2baced6422bac4ab98aa8c3c7
+.git/objects/2b/c8323cf93b13ae33b42442043d5d1c699c92b1
+.git/objects/2c/46d414efc67df54077fa73e9be59b0ce49305b
+.git/objects/2c/642344515c9e9e361efe5799d973e693abcb43
+.git/objects/2d/6092c82d0fe76fd7f415236d20353ddf919e7f
+.git/objects/2f/1632cfddf3d9dade342351e627a0a75609fb46
+.git/objects/30/4732f8842013497e14bd02f67a55f2614fb8f7
+.git/objects/30/610a54808eadcfbbee7b5f1325da320c96665c
+.git/objects/30/8a2a560b42f17aaf3c36e4e9c8cd07182fbb7e
+.git/objects/31/1161192d483df5afaeb628f309392a61c9606c
+.git/objects/32/1773cd857a8a0f0c9c7d3dc3f5ff4fb298dc10
+.git/objects/32/6c0e72c9d820600887813b3b98d0dd69c5d4e8
+.git/objects/34/7139c48727d4f32a2b9bac862fb4793356cc63
+.git/objects/34/d4a8efc8cddbe9b69ef68f3f1c235f77fbbed9
+.git/objects/36/3fcab7ed6e9634e198cf5555ceb88932c9a245
+.git/objects/36/b0fd9464f45b33f482e64bea579787e142affa
+.git/objects/36/b2f64bad788544966492d259b9cce308581896
+.git/objects/36/cbce676bcfbddfa689b9d0abf23ac40fd2e60b
+.git/objects/36/ccefaf270b6e519c1b2e17b0bffadf9774bee2
+.git/objects/37/6d3b43ae9c9c8767192f0fff386e0e937963a8
+.git/objects/37/a2579054c967ca146b74fab326268607e20355
+.git/objects/37/e913e7737b91eab4e79275a4874a6107d013c2
+.git/objects/37/f5db33120a93230f11c173208d74175f3758e8
+.git/objects/38/20a95c65c3e5983cc66d481e2e68706a750090
+.git/objects/38/5bc7071123044e39c4592d068e09abc275399e
+.git/objects/38/79d54755798567f0f318d63340508d5668eb96
+.git/objects/39/172c9cfc0773d9359ae1d88612cd9e016ca9d7
+.git/objects/39/1a902b2bebe1a3df1b090312fd85029dd99308
+.git/objects/39/4917c053a04daa76d8b94f0a02db0bd99e1034
+.git/objects/39/6e294dc51e6ed091e7a89453eec5eed113a602
+.git/objects/39/9f6981d5d35475eb18e6068ae67cdd7c731978
+.git/objects/39/cba764c04dac6f5d2d715f025cddef454608c0
+.git/objects/3a/0b46511a71b464dac72d693faae6ea0f7e3b2e
+.git/objects/3a/489d2118ad4e11ecf7a8296981cf52d6c5b62d
+.git/objects/3a/f93b882364ddc13fefa4826038d2c851bf5ea1
+.git/objects/3b/6dcc735188467e8151bb9cf9e627131db4f148
+.git/objects/3c/4753f09285b11d4bf68545f63c508ca62f8079
+.git/objects/3c/6a3dfd1fdcae6b06cd1c6fc82abf59aa09bfdd
+.git/objects/3c/c05eb23491684aae1c51ce94668a142bad5125
+.git/objects/3c/dcee84de1a55d932f4c1b343608a980996fde9
+.git/objects/3d/39f5089d55cc6a58c7da4a6a33a78045a09166
+.git/objects/3d/d37b60dbcb8b34aff3c6c5f75460b4b526af33
+.git/objects/3d/f04eb8975bb0c7a00d092f289aea6b1f38a504
+.git/objects/3d/f3d1a91dec9f419bbf32c7dbd7ffe3049577b7
+.git/objects/3e/465c9bbf37059a49be498f4081401496da28da
+.git/objects/3e/939a9adc3708bd6740175bf994e773c059985a
+.git/objects/3f/ada9bc0ab538ce5705bb82ac7b910ac23b3f4f
+.git/objects/3f/b30f430c76b81a97f7895fd53d737804b63c8a
+.git/objects/3f/bec0475a71dac337f3e8a4470df9b5214c21bd
+.git/objects/3f/eb2b76c0d8d42c6ee66611ab3762585aafae16
+.git/objects/3f/f7f3ca6a61754971cc100d5a4e904205da6364
+.git/objects/40/b94a6f112f3816a6db91a96c36bd9e38db1bda
+.git/objects/40/fddccf558a3514005ca6bc55980e2ba3b21fbf
+.git/objects/41/420e0ff51f74b5f15288495ac3e01613edf37d
+.git/objects/41/69b6da8e41349cf2accf592ff496295b2e6c04
+.git/objects/41/6dd80d415d8418b59273a3f58073cdc32ef552
+.git/objects/42/22ad50f2d662c0a0e478c98e321824ffa50b0d
+.git/objects/42/4505d54956e6e0728ccb340632cb52a6eebb62
+.git/objects/42/bcbf4780b187e80025b7917058bcb882012aa1
+.git/objects/42/fab1253b8df0e63eb1690976c836df7c6a53cc
+.git/objects/44/bacb0e9291222f7b1d87c9c4602ea5f993dad4
+.git/objects/44/c5b8ab5b1988ae1bf37ee5e2dd0f56054b0623
+.git/objects/44/f4ade5e74a6f28f99c3e3c935b16e461c175cf
+.git/objects/45/2d6f58e9b9cc69b9c6f48e05be7847c6518d2f
+.git/objects/45/a77b4506acdfe04651921dd2db9715e2513bdb
+.git/objects/46/b726bd53d47e61ba941eb355b9c8633ebbaa20
+.git/objects/47/1c153e363984ec4fd9ce0b6bbd725bd9a0c1d7
+.git/objects/47/82ed350fa3cbbffba38fc198d9f3857ccd8a7e
+.git/objects/47/89daa6a443eefa7f3f729164a18351e06e9800
+.git/objects/48/0725cb9e25b337e0b56f90019c6acd7f1e5a46
+.git/objects/48/8a1f0539ab03c1823844c994e2d6b16a30a209
+.git/objects/48/8eb6e83bed0b08ec1cbe61d8b8d906745b596e
+.git/objects/48/aadcd8794c11039c3713a35bb7a4898e37067f
+.git/objects/49/01a77309b883be6048d3cb97a05b7c43a52c71
+.git/objects/49/944001c95e38076d72d4e24f25e0948bbc731c
+.git/objects/49/9449764311766d0120c5867235f3bc7709d59f
+.git/objects/49/969d15daee55648b4aabb7b8cfa1686c205107
+.git/objects/49/cf2c053f30a74f13c7f123d9db0aa92deaf8af
+.git/objects/4a/c4add3a2157e8ded3ef3ee488634d880b87207
+.git/objects/4c/d7b0099ca80c806f8fe495613e8d6c69460d76
+.git/objects/4d/6372eebdb28e45604e46eeda8dd24651419bc0
+.git/objects/4d/67718de797a51fb5a386c37df3f962abab249b
+.git/objects/4d/aa8c2cd6c851de54571246a45798c89990643a
+.git/objects/4e/2cb512af217409876c8103138ae8296fb6a80a
+.git/objects/4e/5ea485c815e617b1e04ed9dc12d9159b157637
+.git/objects/4f/1024328c965973d4f2b8f39d452a2c94602f21
+.git/objects/4f/c34917c172cdc85071fd573a47b71229900fdf
+.git/objects/50/10d5ab14888ce195ea6a4cdb1b392eed3f46fa
+.git/objects/50/2f463a9bc882b461c96aadf492d1729e49e725
+.git/objects/50/32e2b473e93a25fed3de9bee368fab7eea0116
+.git/objects/51/9653163aaa558babd179807f9527710050f5b6
+.git/objects/51/c0bb529c93ae26b5aecae4f273d905a92ad50f
+.git/objects/52/3837edbc28599b4e41b58fc75fc8e35797b64d
+.git/objects/52/fbdcdf8707ed1c3200a232507f1132974fa259
+.git/objects/53/a921ad6c91f72779af94574d91b95c4bade64c
+.git/objects/53/d753fb5868c4851c1e9eeca927d0f842072118
+.git/objects/54/3ad330f5920ad14e59a142475bf00091832dd7
+.git/objects/54/a880fcb7b5c9a79740c801425ed47ee9e4e7bb
+.git/objects/57/3b3a728578069b931ac7845ad14b1d15ebaebd
+.git/objects/57/4bb8fde9d46611254565101aa0dfb3b824c246
+.git/objects/57/5819a9c97f92c8272be730bd2d87991e85d4ac
+.git/objects/57/e137d4f474a6a8fd71dc111479cacbb41ceb06
+.git/objects/58/628cf92bb2b7d072fb7be08aa234b762f99cc3
+.git/objects/58/a007d496909f95d03ca525dc30f5d0b86f5a45
+.git/objects/59/2ceee85b89bd111b779db6116b130509ab6d4b
+.git/objects/59/5dad1356d27dcea625f4f31fa88c94028b7820
+.git/objects/5a/88276a7b36980d2efa2689a410aebb67aa65b8
+.git/objects/5a/f7407ec778de31f1e82c47bd7821a126e62c60
+.git/objects/5b/522e6d468c6bfd2a784d344e6940e38583001f
+.git/objects/5b/e14cf74190cc798230ca68677c57c66c141101
+.git/objects/5c/aee6b4c58287bb06afaa400588bbae618a5957
+.git/objects/5c/fcbfeef26eef39ec93bb937a48163fcb96bc20
+.git/objects/5e/0a49dc26c392c63ceb86b316a72811541f3459
+.git/objects/5e/373b627461c59c7c696bbfb1e426f4640bfe39
+.git/objects/60/608d0fe5bff3a7a7e05d5a232944a1a8effe5f
+.git/objects/61/03e7952dfaa914d32906932282d7c9d1cc9e50
+.git/objects/61/f3bd1fc504c3b78271416d8cfd14faa1dae2b4
+.git/objects/62/a181a710b9b0703c8147faec05117d2a4990f9
+.git/objects/63/913f51138707d01712b7ca869b9569500b5279
+.git/objects/64/2c8bab0760629e0ea34dfcb461d5da282b30f6
+.git/objects/66/208c02ef6220da27204ca028c762cb6b2e0970
+.git/objects/66/4d3942826749fab350fe9bb7f82b1c387b7ac4
+.git/objects/66/73e8a8df39eb61d66cb35fce796eb30bfe11c0
+.git/objects/66/a65d1e4a79f230031ec0e0959a721039e7282f
+.git/objects/66/ef931a5c9077a19f4dab1ec514cbcd0d2dfa07
+.git/objects/67/87c8f37c8c0ccfa8b70501bf2b46074ce544ba
+.git/objects/67/9126da4b05deea0c5c89303083009ac9aaff3c
+.git/objects/67/bcd54c94372aba0a27f5cb0ade6373f94ab810
+.git/objects/67/db734ca11fbc98e64a1b89c04de744c6bc0297
+.git/objects/67/e4c7cfe6939659862ad6dd15184de9c108f2f2
+.git/objects/68/c8ee8af8f2759e1e45edc2c68649e998caf47d
+.git/objects/68/f28c9ca80600eb5f9b9170ef53a1996d202969
+.git/objects/69/0dbba97f29a0d912cb5f24e1591c2883d489da
+.git/objects/69/404bf637703fe510aa784e0993a722aa9d8fd7
+.git/objects/69/5172a6096222671900e0b2f85e79b956a5bd53
+.git/objects/69/5deae6b1c1cc9b5c7d1fe41cdc2d56e3de281e
+.git/objects/69/87906b5c75bb2e19688a52b69e583e0562a9af
+.git/objects/69/e0241257282ecd05841266d566ad3d14b8c718
+.git/objects/6a/3a55a655dfc392cf557edea025769aa07fbb62
+.git/objects/6a/effe6f0a8c742815f58780923712730952090c
+.git/objects/6c/6d9b66c9b322442e18ccbf31901b1e3cc394eb
+.git/objects/6c/8e736c9131cbed40246aad6c478f4be38fbd3f
+.git/objects/6c/cfae6d4f4aa57ff7d00bf7a1e3b74e98874116
+.git/objects/6c/dee076c5bb532b9c2ef7c1e208485b6f024ed9
+.git/objects/6d/7f77f1d6b5da2d3ef1d07cfbb34f8cb245f5f0
+.git/objects/6d/7fce4552539ea7c0f462fc7a0ecb3744968376
+.git/objects/6d/a0652f05f28fc6950cec20ebdfbae89b665479
+.git/objects/6e/09fee93deb75a7a157662d2b5dabc3279d5715
+.git/objects/6e/322f9fd5713338893b16b5f9444c7c5de542e1
+.git/objects/6e/d2d933e1120817fe9182483a228007b18ab6ae
+.git/objects/6f/593b3280b1d71d34f79c55b200738164d01b1a
+.git/objects/70/50fcdd4278917453d8285cd71bc70c7847bd62
+.git/objects/70/6ed334e6d855c937a930e4824cd86006ffaa57
+.git/objects/70/d785333bd2f8c70488285c7a0a6b02b716911e
+.git/objects/70/f8218428ae99e9d53f5421234c93da33601cba
+.git/objects/73/230aabd5a0ef15ecba842a25ebbfffaed03aa0
+.git/objects/73/53c41ecf9ca08017312dc233d9830079b50717
+.git/objects/73/d5d31467ef4a2ff6a069f2dce3bf0296cf35a2
+.git/objects/74/0ec55d2ec46809936a7180791eafce2a5a7564
+.git/objects/74/6adbb6b9e14b7e685c91e280a4d37a672afbd8
+.git/objects/75/4ca9c28ea0c84aea31113ef209318dccc4e625
+.git/objects/76/e1789b06850f063df87b763f25be27996e1488
+.git/objects/77/681f469c9b9a74f4b9c2acb5e4a76be617e44b
+.git/objects/78/4dfa098886252d04aef4bceaa9b149ac5c98b3
+.git/objects/79/48c3b4a7b2f0323e5c6fd7936f1d1d927c3cea
+.git/objects/79/7d452e458972bab9d994556c8305db4c827017
+.git/objects/79/a7d3151efbe44b84eb58243c15b6bb0f1fb613
+.git/objects/7a/7f9873ad7dceb4dc17087fb06c800fa0191376
+.git/objects/7a/f67fb9d18a1be97d804afd15ac74a2cc6c69c1
+.git/objects/7b/788ff1a49cea4c1263d41deff426e7a7965a9b
+.git/objects/7c/35699599f26371bba716793be4053978268ee7
+.git/objects/7d/9abde41c8fb5d876cfa62798f5c46cae7739dd
+.git/objects/7d/bdb9d9e4f9f636c9f5c66ab20c0a2bbe340c67
+.git/objects/7d/bed49ca0818b27148c2ee4b3a415cb317e8c2b
+.git/objects/7d/c38b9a34ae92b7ca4caa07c42248dca56667b1
+.git/objects/7e/2aa662c757e7a45b42b8e15533a37455b126ef
+.git/objects/7e/540fd5508ee861b08e96c4752e3ea29281445f
+.git/objects/7e/921595d05201a28db2f9681644befa73b06beb
+.git/objects/7e/9f1e093e38a5b190ccdff9f36dd7379986e601
+.git/objects/7e/ecfd670b1ad67b0d777be3f4263bbcb809c04f
+.git/objects/7f/05b9ca6277a7709373badb029809c0ba4d1c79
+.git/objects/7f/c6ca5b686b183e0726d4bed235ed5b3adb252a
+.git/objects/80/0c84c8bf0e2df4e76357d6f3f80bca3183b57d
+.git/objects/80/d6e8283f8defadd57ac8946f58f22a0c45bc5f
+.git/objects/80/e867a4e06b4dc26d0a2b327cbd54041addc50a
+.git/objects/81/294e4d6b7b40b6c521d5c4da0c68017a680a79
+.git/objects/81/c88ac6960182a848a9e1d9979846b0d600819f
+.git/objects/81/cf75fe57fa912e9832fc4f36b340e87e6d829c
+.git/objects/82/48420143b2f0f044fb7cd0502bd8166e14d763
+.git/objects/82/5ba3e287600fb06717555f42efdbce1be8ad19
+.git/objects/82/5bbd71c4f1e5083201d99a878390ea523361d2
+.git/objects/82/b6f9d9a33e198f5747104729e1fcef999772a5
+.git/objects/83/59ba512ddc7dba67650ebfc3bbfaab1a753385
+.git/objects/83/7e1e3ef1d72f6e106a0386fe8e3ad4427c5278
+.git/objects/84/1e4cf55055d59c3286788629df6112430d7b88
+.git/objects/84/ac32ae7d989f82d5e46a60405adcc8279e8001
+.git/objects/85/2fa1a4728ae4789e3bca55dd07caef3b41f2a5
+.git/objects/86/a7c3b1b6119f7dbdb8cec74f1b5b3e076bf949
+.git/objects/86/ae503f5a3c50679a5f30a92dc82016b8357394
+.git/objects/87/18fd29ebbc9bdef9462521f8762887c7d4971a
+.git/objects/87/677dfb55209cea32fe471a2ac5711a70e73b69
+.git/objects/87/86d04bd5073e9c5c28eb6fcbf6b08c514dbd03
+.git/objects/87/a4ec369da0de9525a851ac1dd9b27d8dece4da
+.git/objects/88/3982a953d4f396b8fdf70fc91ee0fbb99a31c5
+.git/objects/88/5537e965667626ef2c16e6dd4b0480afb28584
+.git/objects/88/cfd48dff1169879ba46840804b412fe02fefd6
+.git/objects/89/53cba09064923c5daf2d37e7c3c836ccdd794b
+.git/objects/89/8b59bc17d5ab8f93e7b5310ac2791bf82f25db
+.git/objects/89/9b2a20c01b69c8f8e5fb5dd3d2eea73da1701e
+.git/objects/89/c2725b70f1882be97f5214fafe22d27a0ec01e
+.git/objects/8a/8240f3f05dd592ef27c332c28c9782e0252a56
+.git/objects/8a/aa46ac1ae21512746f852a42ba87e4165dfdd1
+.git/objects/8a/f566f42f69e086c9c90b7aad6ce64d3e269893
+.git/objects/8a/f96a2c8ade099adb3fca57791d512ff901fc4a
+.git/objects/8b/137891791fe96927ad78e64b0aad7bded08bdc
+.git/objects/8b/22eb4b90334c651d3666a714a39cee21cb07d8
+.git/objects/8b/8601bad2abf6d03f40e18cde079cd67367e7cc
+.git/objects/8b/d06bdf095c809f80d639847440b06b0199a88c
+.git/objects/8d/91c7446d3779003990b3e8117af969b034cd12
+.git/objects/8e/116777988c8b00a24cc5b0151522f0297e0b09
+.git/objects/8e/5972cd6a2abc71d4cedb6c4b1c826ab45c4374
+.git/objects/8f/4780ea113ca96afb044cf3baee119c46119f9b
+.git/objects/8f/71ba78c13a9e16f03b1f7232cc257f7f207ea9
+.git/objects/8f/a65f403566525c07028740b7cb8a6c80b21e92
+.git/objects/8f/ccb98a2e0098a42785074c133df8d997973f18
+.git/objects/90/3f4899d6fced0eb941e159f7322b21b320c40c
+.git/objects/90/72891a922a866a2ef73e1760f8558a950b6fd4
+.git/objects/91/0aca52d53a90f034efd6dce3dad7c58090faa0
+.git/objects/91/7f332c22d238ca1bb06dd48ce5ebafc4ff7003
+.git/objects/91/9434a6254f0e9651f402737811be6634a03e9c
+.git/objects/92/1a78ce0000169b86006d4d202652bca59a3671
+.git/objects/93/3e20b83d8c5082112c5b64b8f66e8bd2435627
+.git/objects/93/c6c6668954d9f1b03d885718813a089c33fc03
+.git/objects/94/36c1f2873038619489f1321c959268365d4981
+.git/objects/94/c826a6a7c4d451879e95853d206e472534bb56
+.git/objects/95/21940e128e38352f8a942a94dcaf55ee51935b
+.git/objects/95/5ee3038f988929fac2dedb6a307ebd45dfcfd7
+.git/objects/96/6b7f908a00341d40f99f33f33829f2142b7455
+.git/objects/96/b83ed784d0c0ed0039e71fa661f442f2923c96
+.git/objects/97/f6ec936670202d505662881e302e4daacc7757
+.git/objects/98/638324d3fed9b38bd340bb271309ab15d969ea
+.git/objects/98/aa730fc114cc48cae25ce3a308e1837d46e10b
+.git/objects/98/d069da9bd8535fa761055679fbcc5b4c41e3cb
+.git/objects/98/f07868747e495056365516c697f2e641462481
+.git/objects/9a/29f77522e78c19bc5fcfc8fb0192239c16fc05
+.git/objects/9a/70a65690eae71801639278f5c44f2466372c9a
+.git/objects/9b/dc8f4588820d40b98c287d27d05ac100b0a384
+.git/objects/9c/4d56371a7dacdda84f99e438679414718e5d27
+.git/objects/9c/4ddbccd173c0ce07b26684e04f98244f3e58a8
+.git/objects/9d/a19eacad3b03bb08bbddbbf4ac48dd78b3d838
+.git/objects/9d/a503f9e436bc682df757fab88567fcbbf7dd10
+.git/objects/9d/dd80ef62961a54f234da17a604b82ac786d63d
+.git/objects/9e/921a0eb85a0a9b1c7161aad40d795eb906abe5
+.git/objects/9f/3583fb5497b0c8397febff22ac9d5d3add7b3a
+.git/objects/9f/d9c8b703d3b75cc26171ef014160256e4aaffa
+.git/objects/9f/fbd74b4b2db4b276cf423b116af0fc308020d7
+.git/objects/a2/c4f262ec655578aaafc8411830dc8045700a79
+.git/objects/a2/ec33f19f110ebff51a23342d7bc29ec9a1aaa6
+.git/objects/a3/9201c213a72e65fd4396a4f1169c9c1459fc62
+.git/objects/a5/74fb9e3907608e950927d928b60aed4a83795a
+.git/objects/a5/bdccec3b1b97201d89bbdd3e32cb46118f6a68
+.git/objects/a6/2df297d563349552a6228dd4248bbf66b0af59
+.git/objects/a6/368af0ee7628fa194ef8fe3bbe4523113d6e05
+.git/objects/a6/3c5ac286c4c25de5d6624f76de1d412d853c7d
+.git/objects/a6/b93e034cdda3ea9649fafac40cbb77162938a0
+.git/objects/a7/67533c3336696dd3647b7453395d861b9f4eb7
+.git/objects/a8/085e47189e00fe9dc9aa3d81529a77debbd402
+.git/objects/a8/104ff20203011c74f4fb530e6ab8ffc4f2385d
+.git/objects/a8/18203810ace78c8c4a1a1d80b0ac829f60e6cb
+.git/objects/a8/241bc7d70357959836a45f032dcbad9fed2708
+.git/objects/a8/7eef84a5d29844f41176f808a797cea593616b
+.git/objects/a8/bad34dd8afa388a373318b16b39cb37cf209d5
+.git/objects/a9/4a2dcb5762f929e07fe001f954f43448f034a9
+.git/objects/a9/4cc1b614082b16429b01c5f951d8b12558087e
+.git/objects/a9/fd6cb5707a23be6ac5b7196cde9224a9425348
+.git/objects/aa/7972339d044980be671497d8bb176418cad623
+.git/objects/aa/d65ae0783a9aeeceebb0c841c268956131f2d7
+.git/objects/ab/169cf32f01e67d63c0cc4b7a8283bd8d3a44ed
+.git/objects/ab/b4666d270a22038977b8fa3449d7fb522542b9
+.git/objects/ab/b54445c0386c50ddd894849b597fae5362ef58
+.git/objects/ac/9a20be9860e7b10589fbd11af34c7904538e7d
+.git/objects/ac/f10afdd554426b095d3cab552068cff2662d56
+.git/objects/ad/00d39acad21f95ad8e6a63a0b15381b9e45dbf
+.git/objects/ad/82e909cee0bfabf3cf0272aec3382908c05021
+.git/objects/ae/6303b09fdff12fea55e8912ed869ec84b15db2
+.git/objects/ae/a40c7f7274d7bd5d501df416b5911d70ac9701
+.git/objects/af/2fb9adeb4c75f990b651390d8af85ca3211fe3
+.git/objects/af/c73dfac7bab9932844474e52d07abdd2afaa55
+.git/objects/b0/aa20bd470ab9682a0081baa607c7373321c061
+.git/objects/b0/e43e2a03a9fb6b0cf74a55d69415a51714c940
+.git/objects/b2/3827ba057f469fd584a219b0d0225d0bd98098
+.git/objects/b2/a3357d4dfe51c854988007015c20fb7a1964d9
+.git/objects/b2/fbde1b12f5fab37ac9f9b3d23e46c5fd339d9d
+.git/objects/b3/0f1c5ba4d46fbcb9ddf84fe5ce4d487559b378
+.git/objects/b3/12b61424cc8f8fb0746ec24077b830018941c3
+.git/objects/b3/c176141221dbe2b40d3e36942b15068ba48677
+.git/objects/b3/ecc73b17916b07afdcacaf69743ae97233264f
+.git/objects/b4/f982fa8f26bbf01a1bbb28d0886868ad43841d
+.git/objects/b5/6f3f17b1c0114bbd7bdeca59607752e3c44e48
+.git/objects/b5/fa7a3cff3b0a2d2a5e2a553dfd29c0dc46f98c
+.git/objects/b6/13711f5ef93e0af8af44145ae3b27db2df84c0
+.git/objects/b6/3b8a2b7fc4dbe68d4c0a2b5c5075b46e9031e0
+.git/objects/b7/49bfef07473333cf1dd31e9eed89862a5d52aa
+.git/objects/b7/9916eec836253f8c51b1c7814a98b89463c537
+.git/objects/b7/ba600aa81d2d5c798c37bae8005bde39d83ef9
+.git/objects/b9/2a0d854da9a8f73216c4a0ef07a0f0a44e4373
+.git/objects/b9/7d8e96e112b4fdaa05857661041a7126808569
+.git/objects/b9/a32933731bf887c4858c2ee68b76b74c10e9ae
+.git/objects/b9/ce8ea2b2adb8d8061af09c75d2480999773ac3
+.git/objects/ba/69dc1ee558d48cbb487207d5028d62cbb24cf6
+.git/objects/ba/b4a777d765494213f7384e6373a63a5dd4ec9c
+.git/objects/ba/f3d77f76706dbc82162dd6bc9a1365ac5be830
+.git/objects/ba/f515191b4dcb8bc4ede3d7151f849829b864c0
+.git/objects/bb/986e137274e5b3bed8e4a93eed2717218610cb
+.git/objects/bc/66a1e311f8ffeafb8f94bd7959cec6099a9658
+.git/objects/bc/9b8de7fce49b679e8b5e9c96443801f80025ec
+.git/objects/bd/b57226d5f2bd20f11934f4903f16459cf52379
+.git/objects/be/3943c96d8eed92e2a329ce8327616d5e7dc440
+.git/objects/be/f3df6d94f634bf2a4a86fe45dda5d85888911f
+.git/objects/bf/848246544386979cfc50f67409b5385173d6e6
+.git/objects/c0/2a6cdc95a1b18da087798a5e09037730076828
+.git/objects/c0/4e20caf6370ebb9253ad831cc31de4a9c965f6
+.git/objects/c0/90a29e925ee4150dc23a5575d13a86ea89f282
+.git/objects/c2/334743766b6082ef18bc2a2488c3abb1f81f27
+.git/objects/c2/69e9f04264f4a1dcd4a718b0755d8db2f6aeac
+.git/objects/c2/9f831545fbbcb330dce4f2fac2af6e7a8717d0
+.git/objects/c2/da3d3837a8c44d5267e06ef612a50fc5b38604
+.git/objects/c2/efd0b608ba84712fb3e1d01122468a50c7fba1
+.git/objects/c3/0b367ec0a99a3f38e09477c49ba6b5adeb352d
+.git/objects/c3/95bf3f36e90f3376626b8516b2cf9e02dff904
+.git/objects/c4/0f8baa7a9810400550416457a96cfb4d48e96d
+.git/objects/c4/3cc9b8ba4e4ae5c6df5ed5e3f199668b7fead0
+.git/objects/c5/145cef9f693dcd9563242570af9a99a2fa3d86
+.git/objects/c5/a83ed9b88caace9572ff6bc5acac44852e69f1
+.git/objects/c5/e364e51acea95f0862d85e95599630e01254a5
+.git/objects/c6/19a2fe95e02b78ce3bcad05d25fb77f94636f9
+.git/objects/c6/856c979c1f93666ce5ff373b3dc96cbe01e416
+.git/objects/c6/93e02b32b29d5aa9d93a45b2c90fe6074dd0cc
+.git/objects/c6/97280346524a2d188b5bf4e76fb9755c74553c
+.git/objects/c6/f902e5b8c3f3b8ef599805fbd1921ee6072bef
+.git/objects/c7/3c728430d255450afb6f6251ebc12701d4c74d
+.git/objects/c9/cad11a622653566637892455c868e52d6bca73
+.git/objects/c9/d8324ed87688d88cc23596c3730b8e7160afc9
+.git/objects/ca/7fe065c167b304c620950482ab6349d0ab124a
+.git/objects/ca/c892aaf6b1cf8983925cae418460998944262d
+.git/objects/cb/1ef88056edd1caf99a935e434e7ff6943a0ef6
+.git/objects/cb/3ebfb1a5d404f0e9e64b65e69a964c1a349a1a
+.git/objects/cb/8b9b4076cbe09788f14b889244e0a7ae0ab021
+.git/objects/cb/9f7e47057c4bb675d862b9fb8b5bc2bfd1d6be
+.git/objects/cb/b957f335e0cb90104d15e38174713489fb5c9d
+.git/objects/ce/58916fb7664b05fe7c9d5b7c5b8f6fdf591866
+.git/objects/ce/efc61479c4fab72f70a173f959ca34a805eecd
+.git/objects/cf/3fdf6a11ffad155200ac7aebc1c5c26ddd4b03
+.git/objects/cf/6ddee4a878a6be10a66b8bb7daae42ccf1eca5
+.git/objects/cf/78acbe2d9ee8f996a84782d0cc4bec6c345cbe
+.git/objects/cf/eecf00e1f54daeadf5ff76ca35b4fee8ea870c
+.git/objects/cf/f949330a094437d8f89ebb66fae36ca99b060c
+.git/objects/d0/651fda5fbc1e0e728fe38d2abc65f7250c177d
+.git/objects/d0/7d5ac48edb6e1d758fac45ac992ae2f0623537
+.git/objects/d0/9f1e3708c5d1ff7a075cb25c50cca904934c4c
+.git/objects/d0/b33f8d5d848aaad87b1f6006b4c897f91d9f50
+.git/objects/d0/e7f7978940944b9b550df3c43a71b6a548c244
+.git/objects/d0/f988eb0585ae625697b9e3ff8753f68da40cc9
+.git/objects/d2/01cba7f1addeab9bfaf7649bf4820f172bd991
+.git/objects/d2/166ce2a79c456ef3a40c57eca23e96726f0761
+.git/objects/d2/7b9081c4da669da01366fee351820c8f5e34a0
+.git/objects/d2/90edcb5f57605108996b708aa7e0dc6c0505c4
+.git/objects/d2/fc1709e33e38b319c6b5495e92f8ff375aeeeb
+.git/objects/d3/6b1fab2d9dea668a4f83df94d525897d9e68dd
+.git/objects/d3/896c98444fbe7288d434169a28c532258a4466
+.git/objects/d3/b9e0aafa70e7b518de6d7f36503def555e3867
+.git/objects/d3/bb468e87c9d8c5839b66d7e573e7b69f54233e
+.git/objects/d4/92d0d98c8fdc9f93ad2543bb4f531803e9df72
+.git/objects/d5/bd01648a96d50136b2a97c8bb9aa5b711f6c39
+.git/objects/d5/c73240006b5bbf141b397caba5cf3a8ed617f6
+.git/objects/d5/f1c8d34e7a88e3f88bea192c3a370d44689c3c
+.git/objects/d6/067197c31d43456d989be7be952070859301af
+.git/objects/d6/62c395ad24f6c04ab9ef63f2d144f5108d88ba
+.git/objects/d6/9c56691fbdb0b7efa65097c7cc1edac12a6d3e
+.git/objects/d7/61c53178cc135119f252e047fb2f6e08512ed0
+.git/objects/d7/9285925704fc0feb1d3e82aff041c5e8b8b022
+.git/objects/d7/9b461927ecfc0bae0594c0d1b3b6e3e229f2fb
+.git/objects/d8/1602f99970ce9e8de4ef54291b3f46d67c6cd1
+.git/objects/d9/1a47964de0c1862f5e1b0ecdc315406395ce9e
+.git/objects/da/51bd25d4e0c113e0196c5ffdd0e6533390b204
+.git/objects/db/0e62e4b54f5796af848658f2aed5e74a5fe6c3
+.git/objects/db/16367a77d061e7c4b63e46b8aea134ade776d4
+.git/objects/db/325735b945716525e96a369aa713a30acea766
+.git/objects/db/77bb4b7b0906d62b1847e87f15cdcacf6a4f29
+.git/objects/db/8f4e51ed2a40426a96194daa075876939bb363
+.git/objects/db/ccbdc24db64d15924b20504f860501a2875c30
+.git/objects/db/ee657bb5b9158516486b3a1b47ef8b6fc72a2a
+.git/objects/dc/139d85a93101cc0f6e9db03a3e1a9f68e8dd7e
+.git/objects/dc/4adaccf540dadba8d127c3ea7d1c3a2b089dff
+.git/objects/dc/9ada4725e9b0ddb1deab583e5b5102493aa332
+.git/objects/dd/2a79586118df77e26fa4229ef22841d0b36d92
+.git/objects/dd/489aab1f1c859c97fbc00dabbab31a07b32a78
+.git/objects/dd/db8a30c851e7ef5b16a9108934bd1217b6b43f
+.git/objects/de/43dbb12203b186d5f84eed6bcc03e69b4fc82b
+.git/objects/de/92b152b6ff81c9a031ca77ee287e278be2916f
+.git/objects/de/f91f7615e0db047ff058fc3fca1e076be84dc2
+.git/objects/df/773c863e40f5f452c0166f8e5ce4b808fc6b51
+.git/objects/df/f4f49561c816f70eaea557d889d31cf63447ac
+.git/objects/e0/a0e5d0558655ef2924bd69c79f9be610705838
+.git/objects/e0/f0a47bc08f30b550b47b01de4c9206b6824dd9
+.git/objects/e1/bdeea8245cc38af4484a11081f831cce82b152
+.git/objects/e3/3142e71bfc751ce1d7a7d46406235425786005
+.git/objects/e3/773d42e24c8bb3b9070fc9d10d62032787035e
+.git/objects/e4/dfed3a1cb69d405aea255aa35f7ec4b4cf0543
+.git/objects/e4/ef43fb98df49e4a065ae4c2777f54463bf65b7
+.git/objects/e5/d6798ac017fa63b5b01e880e7c3c1b906f8d31
+.git/objects/e5/dd6c4f6f4e61ae08965c24b58b5e9950ffc3c0
+.git/objects/e6/33cdf64f4c0180728f231ac1e8b219dc1981a1
+.git/objects/e7/c5c54370372a4cdde7288a32733998d87bd767
+.git/objects/e8/4ed5a8196b8028a7bb04789a78f69caedf541b
+.git/objects/e8/70bc6ab729df852c8c4af1778b28163fef17d1
+.git/objects/e8/8cbc6d2f9b4e9a297760e25ced2cd2c9f77713
+.git/objects/e8/b967f171f7f19d754234179e88204b9fb40746
+.git/objects/e9/01dde684ea8ba25c50ea5dc7d5900da31a30d4
+.git/objects/e9/7dabc7028e16c6d9ec74f1e2fb677a93ba81b5
+.git/objects/e9/f5fea27c705180eb716271f41b582e76dcbd90
+.git/objects/ea/ac3c8ea2f8c028e7f3ee8465c2a9157203de62
+.git/objects/eb/9b4d76e525556d5d89141648c724331630325d
+.git/objects/eb/df124ca9731ed17007b51f0acd10633e93f319
+.git/objects/ec/3008583819f5c86dc9084a41f3f3fc20f32884
+.git/objects/ec/49cd76a8c7ecb64cf069b6755bb859bd684f6b
+.git/objects/ec/6f83435a775f32a342e3665001d24434e2a071
+.git/objects/ec/7be43c2b5a4e69319ed7d301e084bff8e875c7
+.git/objects/ec/d19f0f977837837d564533f6221ea698491dd3
+.git/objects/ef/426a0927009de3e658904ba3547240c12e628f
+.git/objects/f0/1b822b62766c1eefe5a0b79a28ac573e126e29
+.git/objects/f0/83318e09ca1b6b8484b1694a149f0c5d5cac1d
+.git/objects/f0/8ec73913fd603f280fab0e50e48f691a2b7807
+.git/objects/f1/88e4ce80c09cb95a3ec8919ab50d5525eb1799
+.git/objects/f1/ed6a644ead8dac166e1fbd529f68876e29937d
+.git/objects/f2/d439a51ce6074cd0fd77f96ab2435b55b84d05
+.git/objects/f2/e259c7c9390ff69a6bbe1e0907e6dc366848e7
+.git/objects/f3/46021e5e353f2f827b3a136a02d0f53631c785
+.git/objects/f3/a3495057d42957683c361c40af7d12e9b62bbf
+.git/objects/f3/c28516fb38e64d88cfcf5fb1791175df078f2f
+.git/objects/f3/fe51636ba5ba2a00792fc391f3ecffb131620c
+.git/objects/f4/638040b5d82805b0cea006001915fa402c10a9
+.git/objects/f4/f6dbdbfcfdc9ea12d45197049e9dabcf6850e3
+.git/objects/f5/0b46f299ffe4ebec7fbd84170b1114b014c298
+.git/objects/f5/d92705f347a5d999d70d47a120e458096a3da0
+.git/objects/f6/49049b349999076bce8eea47ddf2ceddbe2f97
+.git/objects/f7/4085f3f6a2b995f8ad1f9ff7b2c46dc118a9e0
+.git/objects/f8/db549a064155513f9bd39d3bbe0a0791f5b778
+.git/objects/f9/b0d7c5ea15f194be85eb6ee8e6721a87ff4644
+.git/objects/fa/fb056f8c88ea61f4a57b64ca7af9de03d2c4f4
+.git/objects/fb/eb35b1f5bfb88ebb673f1c9961a91e99a15d39
+.git/objects/fb/ee1d8cdafcdef3dfd5e228d9cc1688165504a0
+.git/objects/fc/2dde6b09116654a43e35064cc0a49272ec6adc
+.git/objects/fc/8264182dc8cb2c9011fdbe8c79e054a8eef30d
+.git/objects/fc/a5f711574ec2ac83d65c4502e888e6e4384661
+.git/objects/fd/03a22f8bbc5d9dc4e72a78251985d79c33c95d
+.git/objects/fd/4a2a57958198d0ec93bef3d73c56b823459beb
+.git/objects/fd/5fc6f74c227373436a8a3d62c3c4d4a2e611e8
+.git/objects/fe/730945a01f64a61e2235dbe3f45b08f7729182
+.git/objects/fe/d4c4a53ce3622f7258510284474adfbdc4da99
+.git/objects/ff/73824730eabe46d48f4a5f2715f4f209aab1ec
+.git/objects/ff/d126fdb1a04b5ccdb08d3806bcd2053e1d65d0
+.git/objects/pack/pack-762a76bc489b9af439155f655aca92f3bf5eeac7.idx
+.git/objects/pack/pack-762a76bc489b9af439155f655aca92f3bf5eeac7.pack
+.git/objects/pack/pack-762a76bc489b9af439155f655aca92f3bf5eeac7.rev
+.git/objects/pack/pack-7eb1f0a06170458bd346efbf316fd6b49cbc3c07.idx
+.git/objects/pack/pack-7eb1f0a06170458bd346efbf316fd6b49cbc3c07.pack
+.git/objects/pack/pack-7eb1f0a06170458bd346efbf316fd6b49cbc3c07.rev
+.git/packed-refs
+.git/refs/heads/backup-antes-do-rollback
+.git/refs/heads/backup-antes-voltar-actions-25885190003
+.git/refs/heads/main
+.github/workflows/build-apk.yml
+.github/workflows/lib/main.dart
+.gitignore
+.idea/libraries/Dart_SDK.xml
+.idea/libraries/KotlinJavaRuntime.xml
+.idea/modules.xml
+.idea/runConfigurations/main_dart.xml
+.idea/workspace.xml
+.ipynb_checkpoints/Untitled-checkpoint.ipynb
+.metadata
+.vscode/launch.json
+README.md
+Untitled.ipynb
+analysis_options.yaml
+android/.gitignore
+android/app/build.gradle.kts
+android/build.gradle.kts
+android/gradle.properties
+android/gradle/wrapper/gradle-wrapper.jar
+android/gradle/wrapper/gradle-wrapper.properties
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/multi_servidor_android.iml
+android/settings.gradle.kts
+aplicar_update_profissional.sh
+backup_fix_individual/main_20260514_171417.dart
+backup_fix_login/main_20260514_205452.dart
+backup_fix_tvbox/lib_20260514_162654/config/servers.dart
+backup_fix_tvbox/lib_20260514_162654/main.dart
+backup_fix_tvbox/lib_20260514_162654/models/channel.dart
+backup_fix_tvbox/lib_20260514_162654/screens/player_screen.dart
+backup_fix_tvbox/lib_20260514_162654/services/m3u_parser.dart
+backup_fix_tvbox/lib_20260514_162654/services/storage.dart
+backup_fix_tvbox/lib_20260514_162654/sevices/ m3u_parser.dart
+backup_fix_tvbox/lib_20260514_162654/sevices/storage.dart
+build_apk.sh
+correcao_timeout_links_diagnostico.sh
+corrigir_classificacao_diagnostico_tvbox.sh
+corrigir_player_categorias_servidores.sh
+corrigir_submenus_series.sh
+diagnostico_repo.txt
+fix_login_horizontal_enter.sh
+fix_multiservidor_individual_cache.sh
+fix_multiservidor_tvbox.sh
+gerar_diagnostico_repo.sh
+hotfix_links_mpegts.sh
+ios/.gitignore
+ios/Flutter/AppFrameworkInfo.plist
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Generated.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Flutter/ephemeral/flutter_lldb_helper.py
+ios/Flutter/ephemeral/flutter_lldbinit
+ios/Flutter/flutter_export_environment.sh
+ios/Runner.xcodeproj/project.pbxproj
+ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+ios/Runner.xcworkspace/contents.xcworkspacedata
+ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+ios/Runner/AppDelegate.swift
+ios/Runner/Base.lproj/LaunchScreen.storyboard
+ios/Runner/Base.lproj/Main.storyboard
+ios/Runner/GeneratedPluginRegistrant.h
+ios/Runner/GeneratedPluginRegistrant.m
+ios/Runner/Info.plist
+ios/Runner/Runner-Bridging-Header.h
+ios/Runner/SceneDelegate.swift
+ios/RunnerTests/RunnerTests.swift
+lib/config/servers.dart
+lib/main.dart
+lib/mini_preview_player.dart
+lib/models/channel.dart
+lib/screens/player_screen.dart
+lib/series_catalog_page.dart
+lib/services/m3u_parser.dart
+lib/services/storage.dart
+lib/sevices/ m3u_parser.dart
+lib/sevices/storage.dart
+linux/.gitignore
+linux/CMakeLists.txt
+linux/flutter/CMakeLists.txt
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugin_registrant.h
+linux/flutter/generated_plugins.cmake
+linux/runner/CMakeLists.txt
+linux/runner/main.cc
+linux/runner/my_application.cc
+linux/runner/my_application.h
+macos/.gitignore
+macos/Flutter/Flutter-Debug.xcconfig
+macos/Flutter/Flutter-Release.xcconfig
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/ephemeral/Flutter-Generated.xcconfig
+macos/Flutter/ephemeral/flutter_export_environment.sh
+macos/Runner.xcodeproj/project.pbxproj
+macos/Runner.xcworkspace/contents.xcworkspacedata
+macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+macos/Runner/AppDelegate.swift
+macos/Runner/Base.lproj/MainMenu.xib
+macos/Runner/Configs/AppInfo.xcconfig
+macos/Runner/Configs/Debug.xcconfig
+macos/Runner/Configs/Release.xcconfig
+macos/Runner/Configs/Warnings.xcconfig
+macos/Runner/DebugProfile.entitlements
+macos/Runner/Info.plist
+macos/Runner/MainFlutterWindow.swift
+macos/Runner/Release.entitlements
+macos/RunnerTests/RunnerTests.swift
+multi_servidor.iml
+pubspec.lock
+pubspec.yaml
+setup_flutter.sh
+test/widget_test.dart
+web/favicon.png
+web/icons/Icon-192.png
+web/icons/Icon-512.png
+web/icons/Icon-maskable-192.png
+web/icons/Icon-maskable-512.png
+web/index.html
+web/manifest.json
+windows/.gitignore
+windows/CMakeLists.txt
+windows/flutter/CMakeLists.txt
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.h
+windows/flutter/generated_plugins.cmake
+windows/runner/CMakeLists.txt
+windows/runner/Runner.rc
+windows/runner/flutter_window.cpp
+windows/runner/flutter_window.h
+windows/runner/main.cpp
+windows/runner/resource.h
+windows/runner/resources/app_icon.ico
+windows/runner/runner.exe.manifest
+windows/runner/utils.cpp
+windows/runner/utils.h
+windows/runner/win32_window.cpp
+windows/runner/win32_window.h
+
+==============================
+PUBSPEC.YAML
+==============================
+name: multi_servidor
+description: App multi servidor com player profissional
+publish_to: 'none'
+version: 1.0.1+2
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.5.5
+  video_player: ^2.11.1
+  chewie: ^1.13.1
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2
+
+flutter:
+  uses-material-design: true
+
+==============================
+MAIN.DART
+==============================
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
+
+part 'series_catalog_page.dart';
+part 'mini_preview_player.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+  runApp(const MultiServidorApp());
+}
+
+const Color kBg = Color(0xFF050505);
+const Color kPanel = Color(0xFF141414);
+const Color kPanel2 = Color(0xFF202020);
+const Color kRed = Color(0xFFE50914);
+const Color kText = Color(0xFFF4F4F4);
+
+Map<String, String> iptvHeaders() {
+  return {
+    'User-Agent':
+        'Mozilla/5.0 (Linux; Android 12; MultiServidor) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36',
+    'Accept': '*/*',
+    'Accept-Encoding': 'identity',
+    'Connection': 'keep-alive',
+    'Icy-MetaData': '1',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+  };
+}
+
+String maskUrl(String url) {
+  return url
+      .replaceAll(RegExp(r'username=[^&]+'), 'username=***')
+      .replaceAll(RegExp(r'password=[^&]+'), 'password=***');
+}
+
+enum ItemKind { live, movie, series }
+
+class PlaylistSource {
+  final String name;
+  final String urlTemplate;
+  final String? customUser;
+  final String? customPassword;
+
+  PlaylistSource({
+    required this.name,
+    required this.urlTemplate,
+    this.customUser,
+    this.customPassword,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'urlTemplate': urlTemplate,
+        'customUser': customUser,
+        'customPassword': customPassword,
+      };
+
+  factory PlaylistSource.fromJson(Map<String, dynamic> json) {
+    return PlaylistSource(
+      name: json['name'] ?? 'Playlist',
+      urlTemplate: json['urlTemplate'] ?? '',
+      customUser: json['customUser'],
+      customPassword: json['customPassword'],
+    );
+  }
+
+  String buildUrl(String loginUser, String loginPass) {
+    final u =
+        customUser?.trim().isNotEmpty == true ? customUser!.trim() : loginUser;
+    final p = customPassword?.trim().isNotEmpty == true
+        ? customPassword!.trim()
+        : loginPass;
+
+    var t = urlTemplate.trim();
+
+    if (!t.startsWith('http://') && !t.startsWith('https://')) {
+      t = 'http://$t';
+    }
+
+    if (!t.contains('get.php') && !t.contains('username=')) {
+      if (t.endsWith('/')) t = t.substring(0, t.length - 1);
+      t = '$t/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts';
+    }
+
+    t = t
+        .replaceAll('USUARIO_DO_LOGIN', Uri.encodeComponent(u))
+        .replaceAll('SENHA_DO_LOGIN', Uri.encodeComponent(p))
+        .replaceAll('{user}', Uri.encodeComponent(u))
+        .replaceAll('{pass}', Uri.encodeComponent(p))
+        .replaceAll('{username}', Uri.encodeComponent(u))
+        .replaceAll('{password}', Uri.encodeComponent(p));
+
+    t = t.replaceAll('output=m3u8', 'output=mpegts');
+
+    return t;
+  }
+}
+
+class StreamItem {
+  final String title;
+  final String url;
+  final String group;
+  final String logo;
+  final String server;
+  final ItemKind kind;
+
+  StreamItem({
+    required this.title,
+    required this.url,
+    required this.group,
+    required this.logo,
+    required this.server,
+    required this.kind,
+  });
+}
+
+class LoadDiagnostic {
+  final String server;
+  final String maskedUrl;
+  int? statusCode;
+  int responseBytes = 0;
+  int extinfCount = 0;
+  int parsedCount = 0;
+  bool foundExtinf = false;
+  String? error;
+  String preview = '';
+  Duration elapsed = Duration.zero;
+
+  LoadDiagnostic({
+    required this.server,
+    required this.maskedUrl,
+  });
+}
+
+class M3uLoadResult {
+  final List<StreamItem> items;
+  final List<LoadDiagnostic> diagnostics;
+
+  M3uLoadResult(this.items, this.diagnostics);
+}
+
+class M3uService {
+  static final defaultSources = <PlaylistSource>[
+    PlaylistSource(
+      name: 'VLOG',
+      urlTemplate:
+          'http://vlogmk.de/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts',
+    ),
+    PlaylistSource(
+      name: 'LUB TV',
+      urlTemplate:
+          'http://triimundial.shop/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts',
+    ),
+    PlaylistSource(
+      name: 'CINELON21',
+      urlTemplate:
+          'http://infinixparcerias.site/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts',
+    ),
+    PlaylistSource(
+      name: 'TANNIX',
+      urlTemplate:
+          'http://unituf.online/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts',
+    ),
+    PlaylistSource(
+      name: 'CB6000',
+      urlTemplate:
+          'http://cb6.fun/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts',
+    ),
+    PlaylistSource(
+      name: 'MK21 TV',
+      urlTemplate:
+          'http://appsmk.org/get.php?username=USUARIO_DO_LOGIN&password=SENHA_DO_LOGIN&type=m3u_plus&output=mpegts',
+    ),
+  ];
+
+  static String safeFileName(String value) {
+    return base64Url.encode(utf8.encode(value)).replaceAll('=', '');
+  }
+
+  static Future<File> cacheFileFor(String key) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final cacheDir = Directory('${dir.path}/m3u_cache');
+    if (!await cacheDir.exists()) {
+      await cacheDir.create(recursive: true);
+    }
+    return File('${cacheDir.path}/${safeFileName(key)}.m3u');
+  }
+
+  static Future<M3uLoadResult> loadOne({
+    required String user,
+    required String pass,
+    required PlaylistSource source,
+    bool preferCache = true,
+    bool forceRefresh = false,
+  }) async {
+    final url = source.buildUrl(user, pass);
+    final cacheKey = '${source.name}|$url';
+    final cacheFile = await cacheFileFor(cacheKey);
+
+    final diagnostics = <LoadDiagnostic>[];
+    final diag = LoadDiagnostic(server: source.name, maskedUrl: maskUrl(url));
+    diagnostics.add(diag);
+
+    if (preferCache && !forceRefresh && await cacheFile.exists()) {
+      try {
+        final cached = await cacheFile.readAsString();
+        diag.statusCode = 200;
+        diag.responseBytes = utf8.encode(cached).length;
+        diag.preview =
+            cached.length > 1200 ? cached.substring(0, 1200) : cached;
+        diag.extinfCount =
+            RegExp(r'#EXTINF', caseSensitive: false).allMatches(cached).length;
+        diag.foundExtinf = diag.extinfCount > 0;
+        final parsed = parseM3u(cached, source.name);
+        diag.parsedCount = parsed.length;
+        diag.error =
+            'Carregado do cache local. Use Atualizar para baixar novamente.';
+        return M3uLoadResult(_unique(parsed), diagnostics);
+      } catch (_) {
+        // Se cache falhar, baixa normal.
+      }
+    }
+
+    final sw = Stopwatch()..start();
+
+    try {
+      final uri = Uri.parse(url);
+      final client = http.Client();
+
+      try {
+        final request = http.Request('GET', uri);
+        request.headers.addAll(iptvHeaders());
+
+        final streamed =
+            await client.send(request).timeout(const Duration(seconds: 90));
+        diag.statusCode = streamed.statusCode;
+
+        final bytes = await streamed.stream.fold<List<int>>(<int>[], (a, b) {
+          a.addAll(b);
+          return a;
+        }).timeout(const Duration(seconds: 150));
+
+        diag.responseBytes = bytes.length;
+
+        final body = utf8.decode(bytes, allowMalformed: true);
+        diag.preview = body.length > 1200 ? body.substring(0, 1200) : body;
+        diag.extinfCount =
+            RegExp(r'#EXTINF', caseSensitive: false).allMatches(body).length;
+        diag.foundExtinf = diag.extinfCount > 0;
+
+        if (streamed.statusCode != 200) {
+          diag.error = 'HTTP ${streamed.statusCode}';
+          return M3uLoadResult([], diagnostics);
+        }
+
+        if (!diag.foundExtinf) {
+          diag.error =
+              'Resposta não contém #EXTINF. Pode ser HTML, bloqueio, login inválido ou acesso restrito.';
+          return M3uLoadResult([], diagnostics);
+        }
+
+        await cacheFile.writeAsString(body, flush: true);
+
+        final parsed = parseM3u(body, source.name);
+        diag.parsedCount = parsed.length;
+        return M3uLoadResult(_unique(parsed), diagnostics);
+      } finally {
+        client.close();
+      }
+    } on TimeoutException catch (e) {
+      diag.error = 'Timeout: ${e.message ?? 'servidor demorou demais'}';
+      return M3uLoadResult([], diagnostics);
+    } catch (e) {
+      diag.error = e.toString();
+      return M3uLoadResult([], diagnostics);
+    } finally {
+      sw.stop();
+      diag.elapsed = sw.elapsed;
+    }
+  }
+
+  static List<StreamItem> _unique(List<StreamItem> allItems) {
+    final seen = <String>{};
+    final unique = <StreamItem>[];
+    for (final item in allItems) {
+      final key = '${item.url}|${item.title}';
+      if (seen.add(key)) unique.add(item);
+    }
+    return unique;
+  }
+
+  static List<StreamItem> parseM3u(String body, String server) {
+    final lines = const LineSplitter().convert(body);
+    final items = <StreamItem>[];
+    String? extinf;
+
+    for (final raw in lines) {
+      final line = raw.trim();
+      if (line.isEmpty) continue;
+
+      if (line.toUpperCase().startsWith('#EXTINF')) {
+        extinf = line;
+        continue;
+      }
+
+      if (extinf != null &&
+          (line.startsWith('http://') || line.startsWith('https://'))) {
+        final title = extractTitle(extinf!);
+        final group = extractAttr(extinf!, 'group-title').trim().isEmpty
+            ? 'Sem categoria'
+            : extractAttr(extinf!, 'group-title').trim();
+        final logo = extractAttr(extinf!, 'tvg-logo');
+        final kind = classifyItem(title, group, line);
+
+        items.add(StreamItem(
+          title: title.isEmpty ? 'Sem nome' : title,
+          url: line,
+          group: group,
+          logo: logo,
+          server: server,
+          kind: kind,
+        ));
+
+        extinf = null;
+      }
+    }
+
+    return items;
+  }
+
+  static String extractAttr(String line, String attr) {
+    final re = RegExp('$attr="([^"]*)"', caseSensitive: false);
+    return re.firstMatch(line)?.group(1) ?? '';
+  }
+
+  static String extractTitle(String line) {
+    final idx = line.lastIndexOf(',');
+    if (idx >= 0 && idx + 1 < line.length) {
+      return line.substring(idx + 1).trim();
+    }
+    return extractAttr(line, 'tvg-name').trim();
+  }
+
+  static ItemKind classifyItem(String title, String group, String url) {
+    final t = title.toLowerCase();
+    final u = url.toLowerCase();
+
+    final g = group
+        .toLowerCase()
+        .replaceAll('♠', '')
+        .replaceAll('♣', '')
+        .replaceAll('♥', '')
+        .replaceAll('♦', '')
+        .trim();
+
+    bool groupHas(List<String> words) => words.any((w) => g.contains(w));
+    bool groupStarts(List<String> words) => words.any((w) => g.startsWith(w));
+
+    // Primeiro respeita categoria da playlist.
+    // Isso evita categoria de filmes aparecer dentro de séries.
+    if (groupStarts([
+          'filme',
+          'filmes',
+          'movie',
+          'movies',
+          'vod',
+          'cinema',
+          'lancamento',
+          'lançamento',
+        ]) ||
+        groupHas([
+          'filmes |',
+          'filme |',
+          'movies |',
+          'movie |',
+          'vod |',
+        ])) {
+      return ItemKind.movie;
+    }
+
+    if (groupStarts([
+          'series',
+          'séries',
+          'serie',
+          'série',
+          'seriados',
+          'novelas',
+        ]) ||
+        groupHas([
+          'series |',
+          'séries |',
+          'serie |',
+          'série |',
+          'temporada',
+          'episodio',
+          'episódio',
+        ])) {
+      return ItemKind.series;
+    }
+
+    if (groupStarts([
+      'canais',
+      'canal',
+      'ao vivo',
+      'aovivo',
+      'live',
+      'tv',
+    ])) {
+      return ItemKind.live;
+    }
+
+    // Depois URL Xtream.
+    if (u.contains('/movie/') || u.contains('/vod/')) {
+      return ItemKind.movie;
+    }
+
+    if (u.contains('/series/')) {
+      return ItemKind.series;
+    }
+
+    // Depois padrões no nome.
+    final seriesPattern = RegExp(
+      r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)',
+      caseSensitive: false,
+    );
+
+    if (seriesPattern.hasMatch('$t $g')) {
+      return ItemKind.series;
+    }
+
+    if (groupHas([
+      'ação',
+      'acao',
+      'aventura',
+      'comedia',
+      'comédia',
+      'crime',
+      'drama',
+      'terror',
+      'suspense',
+      'romance',
+      'animacao',
+      'animação',
+      'documentario',
+      'documentário',
+      'familia',
+      'família',
+    ])) {
+      return ItemKind.movie;
+    }
+
+    return ItemKind.live;
+  }
+}
+
+class MultiServidorApp extends StatelessWidget {
+  const MultiServidorApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Multi Servidor',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: kBg,
+        colorScheme: const ColorScheme.dark(primary: kRed),
+        appBarTheme:
+            const AppBarTheme(backgroundColor: kBg, foregroundColor: kText),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: kPanel2,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
+      home: const BootPage(),
+    );
+  }
+}
+
+class BootPage extends StatefulWidget {
+  const BootPage({super.key});
+
+  @override
+  State<BootPage> createState() => _BootPageState();
+}
+
+class _BootPageState extends State<BootPage> {
+  bool loading = true;
+  String user = '';
+  String pass = '';
+
+  @override
+  void initState() {
+    super.initState();
+    boot();
+  }
+
+  Future<void> boot() async {
+    final prefs = await SharedPreferences.getInstance();
+    user = prefs.getString('login_user') ?? '';
+    pass = prefs.getString('login_pass') ?? '';
+    setState(() => loading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (user.isEmpty || pass.isEmpty) return LoginPage(onLogin: boot);
+    return HomePage(user: user, pass: pass, onLogout: boot);
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  final VoidCallback onLogin;
+  const LoginPage({super.key, required this.onLogin});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final userCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+
+  final userFocus = FocusNode();
+  final passFocus = FocusNode();
+
+  bool hide = true;
+  bool savePassword = true;
+  bool submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadSaved();
+  }
+
+  @override
+  void dispose() {
+    userCtrl.dispose();
+    passCtrl.dispose();
+    userFocus.dispose();
+    passFocus.dispose();
+    super.dispose();
+  }
+
+  Future<void> loadSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    userCtrl.text = prefs.getString('login_user') ?? '';
+    passCtrl.text = prefs.getString('login_pass') ?? '';
+    savePassword = prefs.getBool('save_password') ?? true;
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> save() async {
+    if (submitting) return;
+
+    final user = userCtrl.text.trim();
+    final pass = passCtrl.text.trim();
+
+    if (user.isEmpty || pass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Digite usuário e senha para entrar.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    setState(() => submitting = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('login_user', user);
+      await prefs.setBool('save_password', savePassword);
+
+      if (savePassword) {
+        await prefs.setString('login_pass', pass);
+        await prefs.remove('erase_password_on_next_logout');
+      } else {
+        // Mantém a senha somente até sair do app pelo botão Sair.
+        await prefs.setString('login_pass', pass);
+        await prefs.setBool('erase_password_on_next_logout', true);
+      }
+
+      if (mounted) {
+        widget.onLogin();
+      }
+    } finally {
+      if (mounted) {
+        setState(() => submitting = false);
+      }
+    }
+  }
+
+  Widget loginContent(double maxHeight) {
+    final compact = maxHeight < 520;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 560),
+      child: Card(
+        color: kPanel,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 26 : 32,
+            vertical: compact ? 18 : 26,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.live_tv,
+                color: kRed,
+                size: compact ? 44 : 58,
+              ),
+              SizedBox(height: compact ? 6 : 12),
+              Text(
+                'Multi Servidor',
+                style: TextStyle(
+                  fontSize: compact ? 34 : 42,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: compact ? 16 : 24),
+              TextField(
+                controller: userCtrl,
+                focusNode: userFocus,
+                textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.text,
+                onSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(passFocus);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Usuário',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+              ),
+              SizedBox(height: compact ? 10 : 14),
+              TextField(
+                controller: passCtrl,
+                focusNode: passFocus,
+                obscureText: hide,
+                textInputAction: TextInputAction.done,
+                keyboardType: TextInputType.visiblePassword,
+                onSubmitted: (_) => save(),
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    tooltip: hide ? 'Mostrar senha' : 'Ocultar senha',
+                    icon: Icon(hide ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => hide = !hide),
+                  ),
+                ),
+              ),
+              SizedBox(height: compact ? 6 : 10),
+              Row(
+                children: [
+                  Checkbox(
+                    value: savePassword,
+                    activeColor: kRed,
+                    onChanged: (v) => setState(() => savePassword = v ?? true),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Salvar senha neste aparelho',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: compact ? 8 : 14),
+              SizedBox(
+                width: double.infinity,
+                height: compact ? 46 : 52,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(backgroundColor: kRed),
+                  onPressed: submitting ? null : save,
+                  icon: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.login),
+                  label: Text(submitting ? 'Entrando...' : 'Entrar'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBg,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Center(
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: loginContent(constraints.maxHeight),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  final String user;
+  final String pass;
+  final VoidCallback onLogout;
+
+  const HomePage({
+    super.key,
+    required this.user,
+    required this.pass,
+    required this.onLogout,
+  });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+enum Section { home, live, movies, series, lists, settings }
+
+class _HomePageState extends State<HomePage> {
+  Section section = Section.home;
+  bool loading = true;
+  String? loadError;
+
+  List<StreamItem> items = [];
+  List<LoadDiagnostic> diagnostics = [];
+  List<PlaylistSource> extraSources = [];
+
+  int selectedSourceIndex = 0;
+
+  List<PlaylistSource> get allSources =>
+      [...M3uService.defaultSources, ...extraSources];
+
+  PlaylistSource get selectedSource {
+    final sources = allSources;
+    if (sources.isEmpty) {
+      return M3uService.defaultSources.first;
+    }
+    if (selectedSourceIndex < 0 || selectedSourceIndex >= sources.length) {
+      selectedSourceIndex = 0;
+    }
+    return sources[selectedSourceIndex];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    bootHome();
+  }
+
+  Future<void> bootHome() async {
+    await loadExtraSources();
+    final prefs = await SharedPreferences.getInstance();
+    selectedSourceIndex = prefs.getInt('selected_source_index') ?? 0;
+    if (selectedSourceIndex >= allSources.length) selectedSourceIndex = 0;
+    await loadSelectedList(preferCache: true, forceRefresh: false);
+  }
+
+  Future<void> loadExtraSources() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('extra_sources') ?? '[]';
+    final decoded = jsonDecode(raw);
+    extraSources = (decoded as List)
+        .map((e) => PlaylistSource.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  Future<void> saveExtraSources() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'extra_sources',
+      jsonEncode(extraSources.map((e) => e.toJson()).toList()),
+    );
+  }
+
+  Future<void> selectSource(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('selected_source_index', index);
+    setState(() {
+      selectedSourceIndex = index;
+      section = Section.home;
+    });
+    await loadSelectedList(preferCache: true, forceRefresh: false);
+  }
+
+  Future<void> loadSelectedList({
+    bool preferCache = true,
+    bool forceRefresh = false,
+  }) async {
+    setState(() {
+      loading = true;
+      loadError = null;
+      items = [];
+      diagnostics = [];
+    });
+
+    try {
+      final result = await M3uService.loadOne(
+        user: widget.user,
+        pass: widget.pass,
+        source: selectedSource,
+        preferCache: preferCache,
+        forceRefresh: forceRefresh,
+      );
+
+      items = result.items;
+      diagnostics = result.diagnostics;
+    } catch (e) {
+      loadError = e.toString();
+    }
+
+    if (mounted) setState(() => loading = false);
+  }
+
+  List<StreamItem> get liveItems =>
+      items.where((e) => e.kind == ItemKind.live).toList();
+  List<StreamItem> get movieItems =>
+      items.where((e) => e.kind == ItemKind.movie).toList();
+  List<StreamItem> get seriesItems =>
+      items.where((e) => e.kind == ItemKind.series).toList();
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final erase = prefs.getBool('erase_password_on_next_logout') ?? false;
+
+    await prefs.remove('login_user');
+
+    if (erase) {
+      await prefs.remove('login_pass');
+      await prefs.remove('erase_password_on_next_logout');
+    }
+
+    widget.onLogout();
+  }
+
+  void showDiagnostics() {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: kPanel,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760, maxHeight: 720),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: ListView(
+              children: [
+                Text(
+                  'Diagnóstico da lista - ${selectedSource.name}',
+                  style: const TextStyle(
+                      fontSize: 26, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                for (final d in diagnostics)
+                  Card(
+                    color: kPanel2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: SelectableText(
+                        'Servidor: ${d.server}\n'
+                        'URL: ${d.maskedUrl}\n'
+                        'Status HTTP: ${d.statusCode ?? '-'}\n'
+                        'Tempo: ${d.elapsed.inSeconds}s\n'
+                        'Tamanho da resposta: ${d.responseBytes}\n'
+                        'Encontrou #EXTINF: ${d.foundExtinf}\n'
+                        'Quantidade #EXTINF: ${d.extinfCount}\n'
+                        'Itens parseados: ${d.parsedCount}\n'
+                        'Erro/Observação: ${d.error ?? '-'}\n\n'
+                        'Prévia da resposta:\n${d.preview}',
+                      ),
+                    ),
+                  ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Fechar'),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget sourceSelector() {
+    final sources = allSources;
+    if (sources.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 230),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: kPanel2,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int>(
+          value:
+              selectedSourceIndex >= sources.length ? 0 : selectedSourceIndex,
+          dropdownColor: kPanel2,
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down),
+          items: [
+            for (int i = 0; i < sources.length; i++)
+              DropdownMenuItem(
+                value: i,
+                child: Text(
+                  sources[i].name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: (v) {
+            if (v != null) selectSource(v);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget topBar() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+        child: Row(
+          children: [
+            const Text(
+              'Multi Servidor',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 12),
+            sourceSelector(),
+            const Spacer(),
+            IconButton(
+              tooltip: 'Home',
+              icon: const Icon(Icons.home),
+              onPressed: () => setState(() => section = Section.home),
+            ),
+            IconButton(
+              tooltip: 'Diagnóstico',
+              icon: const Icon(Icons.info_outline),
+              onPressed: showDiagnostics,
+            ),
+            IconButton(
+              tooltip: 'Listas',
+              icon: const Icon(Icons.playlist_add),
+              onPressed: () => setState(() => section = Section.lists),
+            ),
+            IconButton(
+              tooltip: 'Atualizar lista selecionada',
+              icon: const Icon(Icons.refresh),
+              onPressed: () =>
+                  loadSelectedList(preferCache: false, forceRefresh: true),
+            ),
+            IconButton(
+              tooltip: 'Sair',
+              icon: const Icon(Icons.logout),
+              onPressed: logout,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget navButton(String label, IconData icon, Section target, int count) {
+    final selected = section == target;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => setState(() => section = target),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+          decoration: BoxDecoration(
+            color: selected ? kRed : kPanel2,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 28),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Text('$count'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget home() {
+    return Row(
+      children: [
+        SizedBox(
+          width: 310,
+          child: ListView(
+            padding: const EdgeInsets.all(18),
+            children: [
+              navButton(
+                  'AO VIVO', Icons.live_tv, Section.live, liveItems.length),
+              navButton(
+                  'FILMES', Icons.movie, Section.movies, movieItems.length),
+              navButton('SÉRIES', Icons.video_library, Section.series,
+                  seriesItems.length),
+              navButton('LISTAS', Icons.playlist_play, Section.lists,
+                  extraSources.length),
+              navButton('AJUSTES', Icons.settings, Section.settings, 0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: logout,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 18),
+                    decoration: BoxDecoration(
+                      color: kPanel2,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.logout, size: 28),
+                        SizedBox(width: 14),
+                        Text(
+                          'SAIR',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF3A0205), Color(0xFF111111)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.connected_tv, size: 88, color: kRed),
+                    const SizedBox(height: 20),
+                    Text(
+                      selectedSource.name,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 34, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Ao Vivo: ${liveItems.length}  •  Filmes: ${movieItems.length}  •  Séries: ${seriesItems.length}',
+                      style:
+                          const TextStyle(fontSize: 18, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 22),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: () =>
+                              setState(() => section = Section.live),
+                          icon: const Icon(Icons.live_tv),
+                          label: const Text('Ao Vivo'),
+                        ),
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: () =>
+                              setState(() => section = Section.movies),
+                          icon: const Icon(Icons.movie),
+                          label: const Text('Filmes'),
+                        ),
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: () =>
+                              setState(() => section = Section.series),
+                          icon: const Icon(Icons.video_library),
+                          label: const Text('Séries'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: showDiagnostics,
+                          icon: const Icon(Icons.info_outline),
+                          label: const Text('Diagnóstico'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget currentBody() {
+    if (loading) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(color: kRed),
+            const SizedBox(height: 16),
+            Text('Carregando ${selectedSource.name}...'),
+            const SizedBox(height: 8),
+            const Text(
+              'Somente a lista selecionada será carregada.',
+              style: TextStyle(color: Colors.white60),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (loadError != null) {
+      return Center(child: Text('Erro: $loadError'));
+    }
+
+    switch (section) {
+      case Section.home:
+        return home();
+      case Section.live:
+        return CatalogPage(
+            title: 'Ao Vivo', items: liveItems, mode: CatalogMode.channels);
+      case Section.movies:
+        return CatalogPage(
+            title: 'Filmes', items: movieItems, mode: CatalogMode.movies);
+      case Section.series:
+        return SeriesCatalogPage(title: 'Séries', items: seriesItems);
+      case Section.lists:
+        return ListsPage(
+          extraSources: extraSources,
+          onBack: () => setState(() => section = Section.home),
+          onChanged: (v) async {
+            extraSources = v;
+            if (selectedSourceIndex >= allSources.length)
+              selectedSourceIndex = 0;
+            await saveExtraSources();
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setInt('selected_source_index', selectedSourceIndex);
+            setState(() => section = Section.home);
+            await loadSelectedList(preferCache: true, forceRefresh: false);
+          },
+        );
+      case Section.settings:
+        return SettingsPage(
+          onReload: () =>
+              loadSelectedList(preferCache: false, forceRefresh: true),
+          onDiagnostics: showDiagnostics,
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (section != Section.home) {
+          setState(() => section = Section.home);
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            topBar(),
+            Expanded(child: currentBody()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+enum CatalogMode { channels, movies, series }
+
+class CatalogPage extends StatefulWidget {
+  final String title;
+  final List<StreamItem> items;
+  final CatalogMode mode;
+
+  const CatalogPage({
+    super.key,
+    required this.title,
+    required this.items,
+    required this.mode,
+  });
+
+  @override
+  State<CatalogPage> createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
+  String selectedGroup = 'Todos';
+  String query = '';
+  StreamItem? selectedPreviewItem;
+
+  Map<String, int> get groups {
+    final map = <String, int>{'Todos': widget.items.length};
+    for (final item in widget.items) {
+      map[item.group] = (map[item.group] ?? 0) + 1;
+    }
+    final entries = map.entries.toList()
+      ..sort((a, b) {
+        if (a.key == 'Todos') return -1;
+        if (b.key == 'Todos') return 1;
+        return a.key.toLowerCase().compareTo(b.key.toLowerCase());
+      });
+    return Map.fromEntries(entries);
+  }
+
+  List<StreamItem> get filtered {
+    return widget.items.where((e) {
+      final okGroup = selectedGroup == 'Todos' || e.group == selectedGroup;
+      final okQuery = query.trim().isEmpty ||
+          e.title.toLowerCase().contains(query.toLowerCase());
+      return okGroup && okQuery;
+    }).toList();
+  }
+
+  void openItem(StreamItem item) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PlayerPage(item: item)),
+    );
+  }
+
+  Widget groupList() {
+    final gs = groups;
+    return Container(
+      width: 260,
+      color: const Color(0xFF0D0D0D),
+      child: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Text('${widget.title} (${widget.items.length})',
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          ),
+          for (final e in gs.entries)
+            ListTile(
+              selected: selectedGroup == e.key,
+              selectedTileColor: kRed.withOpacity(.75),
+              title: Text(e.key, maxLines: 1, overflow: TextOverflow.ellipsis),
+              trailing: Text('${e.value}'),
+              onTap: () => setState(() => selectedGroup = e.key),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget channelsLayout() {
+    final list = filtered;
+    final selected =
+        selectedPreviewItem != null && list.contains(selectedPreviewItem)
+            ? selectedPreviewItem
+            : (list.isNotEmpty ? list.first : null);
+    return Row(
+      children: [
+        groupList(),
+        Expanded(
+          flex: 2,
+          child: ListView.builder(
+            itemCount: list.length,
+            itemBuilder: (_, i) {
+              final item = list[i];
+              return ListTile(
+                leading: item.logo.isNotEmpty
+                    ? Image.network(item.logo,
+                        width: 44,
+                        height: 44,
+                        errorBuilder: (_, __, ___) => const Icon(Icons.tv))
+                    : const Icon(Icons.tv),
+                title: Text(item.title,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Text('${item.group} • ${item.server}',
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                onTap: () => setState(() => selectedPreviewItem = item),
+                onLongPress: () => openItem(item),
+              );
+            },
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+                color: kPanel, borderRadius: BorderRadius.circular(22)),
+            child: selected == null
+                ? const Center(child: Text('Nenhum canal'))
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      selected.logo.isNotEmpty
+                          ? Image.network(selected.logo,
+                              height: 110,
+                              errorBuilder: (_, __, ___) =>
+                                  const Icon(Icons.live_tv, size: 90))
+                          : const Icon(Icons.live_tv, size: 90),
+                      const SizedBox(height: 18),
+                      Text(selected.title,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text(selected.group,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white70)),
+                      const SizedBox(height: 20),
+                      FilledButton.icon(
+                        style: FilledButton.styleFrom(backgroundColor: kRed),
+                        onPressed: () => openItem(selected),
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Assistir'),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget gridLayout() {
+    final list = filtered;
+    return Row(
+      children: [
+        groupList(),
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 170,
+              childAspectRatio: .62,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+            ),
+            itemCount: list.length,
+            itemBuilder: (_, i) {
+              final item = list[i];
+              return InkWell(
+                onTap: () => setState(() => selectedPreviewItem = item),
+                onLongPress: () => openItem(item),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: kPanel, borderRadius: BorderRadius.circular(16)),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: item.logo.isNotEmpty
+                            ? Image.network(
+                                item.logo,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Center(
+                                    child: Icon(Icons.movie, size: 54)),
+                              )
+                            : Center(
+                                child: Icon(
+                                  widget.mode == CatalogMode.series
+                                      ? Icons.video_library
+                                      : Icons.movie,
+                                  size: 54,
+                                ),
+                              ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(item.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: TextField(
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              labelText: 'Buscar em ${widget.title}',
+            ),
+            onChanged: (v) => setState(() => query = v),
+          ),
+        ),
+        Expanded(
+          child: widget.mode == CatalogMode.channels
+              ? channelsLayout()
+              : gridLayout(),
+        ),
+      ],
+    );
+  }
+}
+
+class PlayerPage extends StatefulWidget {
+  final StreamItem item;
+  const PlayerPage({super.key, required this.item});
+
+  @override
+  State<PlayerPage> createState() => _PlayerPageState();
+}
+
+class _PlayerPageState extends State<PlayerPage> {
+  VideoPlayerController? video;
+  ChewieController? chewie;
+  String? error;
+  bool loading = true;
+
+  bool get shouldSaveProgress =>
+      widget.item.kind == ItemKind.movie || widget.item.kind == ItemKind.series;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlayer();
+  }
+
+  Future<void> initPlayer() async {
+    try {
+      final uri = Uri.parse(widget.item.url);
+      video = VideoPlayerController.networkUrl(uri, httpHeaders: iptvHeaders());
+
+      await video!.initialize().timeout(const Duration(seconds: 60));
+
+      if (shouldSaveProgress) {
+        final prefs = await SharedPreferences.getInstance();
+        final pos = prefs.getInt('progress_${widget.item.url}') ?? 0;
+        if (pos > 60000 &&
+            pos < (video!.value.duration.inMilliseconds - 60000)) {
+          await video!.seekTo(Duration(milliseconds: pos));
+        }
+      }
+
+      chewie = ChewieController(
+        videoPlayerController: video!,
+        autoPlay: true,
+        looping: false,
+        allowPlaybackSpeedChanging: true,
+        playbackSpeeds: const [0.5, 1, 1.25, 1.5, 2, 2.5, 3],
+        errorBuilder: (context, message) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Falha ao abrir o vídeo.\n\n'
+                'Possíveis causas: canal offline, bloqueio do servidor, limite de conexão, '
+                'codec 4K/H.265 não suportado pelo aparelho, link expirado ou servidor lento.\n\n'
+                'Tente outro canal da mesma lista. Se só canais 4K falharem, é provável incompatibilidade '
+                'de codec/bitrate do aparelho.\n\n'
+                'Detalhe técnico:\n$message',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ),
+          );
+        },
+      );
+    } on TimeoutException {
+      error =
+          'Timeout ao iniciar o vídeo. Pode ser canal pesado/4K, servidor lento ou link bloqueado.';
+    } catch (e) {
+      error = e.toString();
+    }
+
+    if (mounted) setState(() => loading = false);
+  }
+
+  Future<void> saveProgress() async {
+    if (!shouldSaveProgress || video == null || !video!.value.isInitialized)
+      return;
+    final pos = video!.value.position.inMilliseconds;
+    if (pos > 30000) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('progress_${widget.item.url}', pos);
+      await prefs.setString(
+          'progress_title_${widget.item.url}', widget.item.title);
+    }
+  }
+
+  @override
+  void dispose() {
+    saveProgress();
+    chewie?.dispose();
+    video?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(widget.item.title,
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      body: Center(
+        child: loading
+            ? const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: kRed),
+                  SizedBox(height: 12),
+                  Text('Abrindo player...'),
+                ],
+              )
+            : error != null
+                ? Padding(
+                    padding: const EdgeInsets.all(28),
+                    child: Text(
+                      'Falha ao abrir o vídeo.\n\n'
+                      'Possíveis causas: canal offline, bloqueio do servidor, limite de conexão, codec 4K/H.265 não suportado '
+                      'pelo aparelho, link expirado ou servidor demorando demais.\n\n'
+                      'Detalhe técnico:\n$error',
+                      textAlign: TextAlign.center,
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                  )
+                : Chewie(controller: chewie!),
+      ),
+    );
+  }
+}
+
+class ListsPage extends StatefulWidget {
+  final List<PlaylistSource> extraSources;
+  final ValueChanged<List<PlaylistSource>> onChanged;
+  final VoidCallback onBack;
+
+  const ListsPage({
+    super.key,
+    required this.extraSources,
+    required this.onChanged,
+    required this.onBack,
+  });
+
+  @override
+  State<ListsPage> createState() => _ListsPageState();
+}
+
+class _ListsPageState extends State<ListsPage> {
+  late List<PlaylistSource> list;
+
+  @override
+  void initState() {
+    super.initState();
+    list = [...widget.extraSources];
+  }
+
+  Future<void> addOrEdit({PlaylistSource? source, int? index}) async {
+    final name = TextEditingController(text: source?.name ?? '');
+    final url = TextEditingController(text: source?.urlTemplate ?? '');
+    final user = TextEditingController(text: source?.customUser ?? '');
+    final pass = TextEditingController(text: source?.customPassword ?? '');
+
+    final result = await showDialog<PlaylistSource>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: kPanel,
+        title: Text(source == null ? 'Adicionar playlist' : 'Editar playlist'),
+        content: SizedBox(
+          width: 520,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                    controller: name,
+                    decoration: const InputDecoration(labelText: 'Nome')),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: url,
+                  decoration: const InputDecoration(
+                    labelText: 'URL/base',
+                    hintText: 'http://servidor.com ou URL get.php completa',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: user,
+                    decoration:
+                        const InputDecoration(labelText: 'Usuário opcional')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: pass,
+                    decoration:
+                        const InputDecoration(labelText: 'Senha opcional')),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: kRed),
+            onPressed: () {
+              Navigator.pop(
+                context,
+                PlaylistSource(
+                  name: name.text.trim().isEmpty
+                      ? 'Playlist extra'
+                      : name.text.trim(),
+                  urlTemplate: url.text.trim(),
+                  customUser:
+                      user.text.trim().isEmpty ? null : user.text.trim(),
+                  customPassword:
+                      pass.text.trim().isEmpty ? null : pass.text.trim(),
+                ),
+              );
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.urlTemplate.isNotEmpty) {
+      setState(() {
+        if (index == null) {
+          list.add(result);
+        } else {
+          list[index] = result;
+        }
+      });
+      widget.onChanged(list);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Voltar ao menu',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: widget.onBack,
+              ),
+              const Text('Listas adicionais',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              OutlinedButton.icon(
+                onPressed: widget.onBack,
+                icon: const Icon(Icons.home),
+                label: const Text('Menu'),
+              ),
+              const SizedBox(width: 10),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(backgroundColor: kRed),
+                onPressed: () => addOrEdit(),
+                icon: const Icon(Icons.add),
+                label: const Text('Adicionar'),
+              )
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'As listas padrão usam usuário/senha do login. Aqui você pode adicionar playlists extras com usuário/senha próprios.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 18),
+          Expanded(
+            child: ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (_, i) {
+                final s = list[i];
+                return Card(
+                  color: kPanel,
+                  child: ListTile(
+                    title: Text(s.name),
+                    subtitle: Text(maskUrl(s.urlTemplate),
+                        maxLines: 2, overflow: TextOverflow.ellipsis),
+                    trailing: Wrap(
+                      children: [
+                        IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => addOrEdit(source: s, index: i)),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.delete, color: Colors.redAccent),
+                          onPressed: () {
+                            setState(() => list.removeAt(i));
+                            widget.onChanged(list);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  final VoidCallback onReload;
+  final VoidCallback onDiagnostics;
+
+  const SettingsPage({
+    super.key,
+    required this.onReload,
+    required this.onDiagnostics,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 520),
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+            color: kPanel, borderRadius: BorderRadius.circular(24)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.settings, size: 64, color: kRed),
+            const SizedBox(height: 12),
+            const Text('Ajustes',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.refresh),
+              title: const Text('Recarregar listas'),
+              onTap: onReload,
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('Ver diagnóstico HTTP/M3U'),
+              onTap: onDiagnostics,
+            ),
+            const Divider(),
+            const Text(
+              'Observação: canais 4K podem falhar em aparelhos sem suporte ao codec/bitrate usado pelo servidor. '
+              'O app agora mostra erro técnico e evita loop infinito.',
+              style: TextStyle(color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+==============================
+SERVERS.DART
+==============================
+class Server {
+  final String name;
+  final String baseUrl;
+  final String username;
+  final String password;
+  final bool directUrl;
+  final String outputFormat;
+
+  const Server({
+    required this.name,
+    required this.baseUrl,
+    required this.username,
+    required this.password,
+    this.directUrl = false,
+    this.outputFormat = 'mpegts',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'baseUrl': baseUrl,
+        'username': username,
+        'password': password,
+        'directUrl': directUrl,
+        'outputFormat': outputFormat,
+      };
+
+  factory Server.fromJson(Map<String, dynamic> json) {
+    return Server(
+      name: json['name'] ?? 'Playlist',
+      baseUrl: json['baseUrl'] ?? '',
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
+      directUrl: json['directUrl'] == true,
+      outputFormat: json['outputFormat'] ?? 'mpegts',
+    );
+  }
+}
+
+class ServerConfig {
+  static List<Server> buildDefaultServers(String user, String pass) {
+    return [
+      Server(name: 'VLOG', baseUrl: 'http://vlogmk.de', username: user, password: pass),
+      Server(name: 'LUB TV', baseUrl: 'http://triimundial.shop', username: user, password: pass),
+      Server(name: 'CINELON21', baseUrl: 'http://infinixparcerias.site', username: user, password: pass),
+      Server(name: 'TANNIX', baseUrl: 'http://unituf.online', username: user, password: pass),
+      Server(name: 'CB6000', baseUrl: 'http://cb6.fun', username: user, password: pass),
+      Server(name: 'MK21 TV', baseUrl: 'http://appsmk.org', username: user, password: pass),
+    ];
+  }
+
+  static String buildM3UUrl(Server server) {
+    if (server.directUrl) return server.baseUrl.trim();
+
+    final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+
+    return '$base/get.php?username=${Uri.encodeComponent(server.username)}&password=${Uri.encodeComponent(server.password)}&type=m3u_plus&output=mpegts';
+  }
+
+  static String safeUrlForDebug(Server server) {
+    if (server.directUrl) return server.baseUrl;
+
+    final base = server.baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+
+    return '$base/get.php?username=***&password=***&type=m3u_plus&output=mpegts';
+  }
+}
+
+==============================
+CHANNEL.DART
+==============================
+enum ChannelType {
+  live,
+  movie,
+  series,
+  unknown,
+}
+
+class Channel {
+  final String id;
+  final String title;
+  final String? group;
+  final String? logo;
+  final String? streamUrl;
+  final String? sourceName;
+  final ChannelType type;
+
+  Channel({
+    required this.id,
+    required this.title,
+    this.group,
+    this.logo,
+    this.streamUrl,
+    this.sourceName,
+    this.type = ChannelType.unknown,
+  });
+
+  Channel copyWith({
+    String? id,
+    String? title,
+    String? group,
+    String? logo,
+    String? streamUrl,
+    String? sourceName,
+    ChannelType? type,
+  }) {
+    return Channel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      group: group ?? this.group,
+      logo: logo ?? this.logo,
+      streamUrl: streamUrl ?? this.streamUrl,
+      sourceName: sourceName ?? this.sourceName,
+      type: type ?? this.type,
+    );
+  }
+}
+
+==============================
+M3U_PARSER.DART
+==============================
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../models/channel.dart';
+
+class M3ULoadResult {
+  final List<Channel> channels;
+  final int? statusCode;
+  final int bodyLength;
+  final int extinfCount;
+  final String preview;
+  final String? error;
+  final String urlMasked;
+
+  M3ULoadResult({
+    required this.channels,
+    required this.statusCode,
+    required this.bodyLength,
+    required this.extinfCount,
+    required this.preview,
+    required this.error,
+    required this.urlMasked,
+  });
+
+  bool get success => channels.isNotEmpty;
+}
+
+class M3UParser {
+  static Future<List<Channel>> parseM3U(String url, {String? sourceName}) async {
+    final result = await parseWithDiagnostics(url, sourceName: sourceName);
+    return result.channels;
+  }
+
+  static Future<M3ULoadResult> parseWithDiagnostics(
+    String url, {
+    String? sourceName,
+  }) async {
+    final masked = _maskUrl(url);
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: const {
+          'User-Agent': 'Mozilla/5.0 (Linux; Android) MultiServidor/1.0',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+        },
+      ).timeout(const Duration(seconds: 90));
+
+      final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+      final preview = body.length > 300 ? body.substring(0, 300) : body;
+      final extinfCount = RegExp(r'#EXTINF', caseSensitive: false).allMatches(body).length;
+
+      if (response.statusCode != 200) {
+        return M3ULoadResult(
+          channels: [],
+          statusCode: response.statusCode,
+          bodyLength: body.length,
+          extinfCount: extinfCount,
+          preview: preview,
+          error: 'HTTP ${response.statusCode}',
+          urlMasked: masked,
+        );
+      }
+
+      if (body.trim().isEmpty) {
+        return M3ULoadResult(
+          channels: [],
+          statusCode: response.statusCode,
+          bodyLength: body.length,
+          extinfCount: extinfCount,
+          preview: preview,
+          error: 'Resposta vazia',
+          urlMasked: masked,
+        );
+      }
+
+      if (!body.contains('#EXTINF')) {
+        return M3ULoadResult(
+          channels: [],
+          statusCode: response.statusCode,
+          bodyLength: body.length,
+          extinfCount: extinfCount,
+          preview: preview,
+          error: 'Resposta não contém #EXTINF',
+          urlMasked: masked,
+        );
+      }
+
+      final channels = _parseBody(body, sourceName: sourceName);
+
+      return M3ULoadResult(
+        channels: channels,
+        statusCode: response.statusCode,
+        bodyLength: body.length,
+        extinfCount: extinfCount,
+        preview: preview,
+        error: channels.isEmpty ? 'Nenhum canal parseado' : null,
+        urlMasked: masked,
+      );
+    } catch (e) {
+      return M3ULoadResult(
+        channels: [],
+        statusCode: null,
+        bodyLength: 0,
+        extinfCount: 0,
+        preview: '',
+        error: e.toString(),
+        urlMasked: masked,
+      );
+    }
+  }
+
+  static List<Channel> _parseBody(String body, {String? sourceName}) {
+    final lines = body.split(RegExp(r'\r?\n'));
+    final channels = <Channel>[];
+    Channel? current;
+
+    for (final raw in lines) {
+      final line = raw.trim();
+
+      if (line.isEmpty) continue;
+
+      if (line.startsWith('#EXTINF:')) {
+        final title = _extractTitle(line);
+        final attrs = _extractAttrs(line);
+        final group = _cleanGroup(attrs['group-title'] ?? attrs['group'] ?? 'Sem grupo');
+
+        current = Channel(
+          id: '${sourceName ?? 'src'}_${channels.length}_${title.hashCode}',
+          title: title.isEmpty ? 'Sem título' : title,
+          group: group,
+          logo: attrs['tvg-logo'],
+          sourceName: sourceName,
+          type: _detectType(title, group, null),
+        );
+      } else if ((line.startsWith('http://') || line.startsWith('https://')) && current != null) {
+        final fixedType = _detectType(current.title, current.group, line);
+
+        channels.add(
+          current.copyWith(
+            streamUrl: line,
+            type: fixedType,
+          ),
+        );
+
+        current = null;
+      }
+    }
+
+    return channels;
+  }
+
+  static String _extractTitle(String line) {
+    final comma = line.lastIndexOf(',');
+
+    if (comma >= 0 && comma < line.length - 1) {
+      return line.substring(comma + 1).trim();
+    }
+
+    return 'Canal';
+  }
+
+  static Map<String, String> _extractAttrs(String line) {
+    final attrs = <String, String>{};
+
+    final regexDouble = RegExp(r'([A-Za-z0-9_-]+)="([^"]*)"');
+    final regexSingle = RegExp(r"([A-Za-z0-9_-]+)='([^']*)'");
+
+    for (final match in regexDouble.allMatches(line)) {
+      attrs[match.group(1)!.toLowerCase()] = match.group(2)!;
+    }
+
+    for (final match in regexSingle.allMatches(line)) {
+      attrs[match.group(1)!.toLowerCase()] = match.group(2)!;
+    }
+
+    return attrs;
+  }
+
+  static String _cleanGroup(String group) {
+    return group
+        .replaceAll('|', ' | ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  static ChannelType _detectType(String title, String? group, String? url) {
+    final t = title.toLowerCase();
+    final g = (group ?? '').toLowerCase();
+    final u = (url ?? '').toLowerCase();
+    final text = '$t $g $u';
+
+    // Séries primeiro, pois várias séries também usam palavras parecidas com filme.
+    final seriesWords = [
+      '/series/',
+      '/serie/',
+      'series',
+      'séries',
+      'serie',
+      'série',
+      'temporada',
+      'season',
+      'episodio',
+      'episódio',
+      'capitulo',
+      'capítulo',
+      's01',
+      's02',
+      's03',
+      's04',
+      's05',
+      'e01',
+      'e02',
+      'e03',
+      'e04',
+    ];
+
+    for (final word in seriesWords) {
+      if (text.contains(word)) return ChannelType.series;
+    }
+
+    final movieWords = [
+      '/movie/',
+      '/movies/',
+      '/filme/',
+      '/filmes/',
+      'filme',
+      'filmes',
+      'movie',
+      'movies',
+      'cinema',
+      'vod',
+      'lançamento',
+      'lancamento',
+      'top 10',
+      'ação',
+      'acao',
+      'crime',
+      'guerra',
+      'animação',
+      'animacao',
+      'infantil',
+      'família',
+      'familia',
+      'drama',
+      'comédia',
+      'comedia',
+      'terror',
+      'suspense',
+      'romance',
+      'ficção',
+      'ficcao',
+      'aventura',
+      'documentário',
+      'documentario',
+    ];
+
+    for (final word in movieWords) {
+      if (text.contains(word)) return ChannelType.movie;
+    }
+
+    return ChannelType.live;
+  }
+
+  static String _maskUrl(String url) {
+    return url
+        .replaceAll(RegExp(r'username=[^&]+'), 'username=***')
+        .replaceAll(RegExp(r'password=[^&]+'), 'password=***');
+  }
+}
+
+==============================
+STORAGE.DART
+==============================
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/servers.dart';
+import '../models/channel.dart';
+
+class AppStorage {
+  static const _secure = FlutterSecureStorage();
+
+  static Future<void> saveCredentials(String user, String pass) async {
+    await _secure.write(key: 'login_user', value: user);
+    await _secure.write(key: 'login_pass', value: pass);
+  }
+
+  static Future<Map<String, String>?> getCredentials() async {
+    final user = await _secure.read(key: 'login_user');
+    final pass = await _secure.read(key: 'login_pass');
+
+    if (user == null || pass == null) return null;
+    return {'user': user, 'pass': pass};
+  }
+
+  static Future<void> clearCredentials() async {
+    await _secure.delete(key: 'login_user');
+    await _secure.delete(key: 'login_pass');
+  }
+
+  static Future<List<Server>> getCustomPlaylists() async {
+    final raw = await _secure.read(key: 'custom_playlists');
+    if (raw == null || raw.isEmpty) return [];
+
+    try {
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => Server.fromJson(Map<String, dynamic>.from(e))).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Future<void> saveCustomPlaylists(List<Server> playlists) async {
+    final raw = jsonEncode(playlists.map((e) => e.toJson()).toList());
+    await _secure.write(key: 'custom_playlists', value: raw);
+  }
+
+  static Future<void> addCustomPlaylist(Server server) async {
+    final current = await getCustomPlaylists();
+    current.removeWhere((e) => e.name == server.name);
+    current.add(server);
+    await saveCustomPlaylists(current);
+  }
+
+  static Future<void> removeCustomPlaylist(String name) async {
+    final current = await getCustomPlaylists();
+    current.removeWhere((e) => e.name == name);
+    await saveCustomPlaylists(current);
+  }
+
+  static Future<void> saveWatch(Channel channel, Duration position, Duration duration) async {
+    if (channel.streamUrl == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final rawList = prefs.getStringList('continue_watching') ?? [];
+
+    final item = {
+      'id': channel.id,
+      'title': channel.title,
+      'group': channel.group,
+      'logo': channel.logo,
+      'streamUrl': channel.streamUrl,
+      'sourceName': channel.sourceName,
+      'type': channel.type.name,
+      'position': position.inMilliseconds,
+      'duration': duration.inMilliseconds,
+      'updatedAt': DateTime.now().toIso8601String(),
+    };
+
+    final filtered = rawList.where((raw) {
+      try {
+        final decoded = jsonDecode(raw);
+        return decoded['streamUrl'] != channel.streamUrl;
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+
+    filtered.insert(0, jsonEncode(item));
+
+    if (filtered.length > 30) {
+      filtered.removeRange(30, filtered.length);
+    }
+
+    await prefs.setStringList('continue_watching', filtered);
+  }
+
+  static Future<List<Channel>> getContinueWatching() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rawList = prefs.getStringList('continue_watching') ?? [];
+
+    final result = <Channel>[];
+
+    for (final raw in rawList) {
+      try {
+        final json = jsonDecode(raw);
+        final typeName = json['type'] ?? 'unknown';
+        final type = ChannelType.values.firstWhere(
+          (e) => e.name == typeName,
+          orElse: () => ChannelType.unknown,
+        );
+
+        result.add(Channel(
+          id: json['id'] ?? '',
+          title: json['title'] ?? 'Sem título',
+          group: json['group'],
+          logo: json['logo'],
+          streamUrl: json['streamUrl'],
+          sourceName: json['sourceName'],
+          type: type,
+        ));
+      } catch (_) {}
+    }
+
+    return result;
+  }
+}
+
+==============================
+PLAYER_SCREEN.DART
+==============================
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
+import '../models/channel.dart';
+import '../services/storage.dart';
+
+class PlayerScreen extends StatefulWidget {
+  final Channel channel;
+
+  const PlayerScreen({super.key, required this.channel});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  VideoPlayerController? _video;
+  ChewieController? _chewie;
+  String? _error;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _startPlayer();
+  }
+
+  Future<void> _startPlayer() async {
+    try {
+      final url = widget.channel.streamUrl;
+
+      if (url == null || url.isEmpty) {
+        setState(() {
+          _error = 'Link inválido.';
+          _loading = false;
+        });
+        return;
+      }
+
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.portraitUp,
+      ]);
+
+      final controller = VideoPlayerController.networkUrl(
+        Uri.parse(url),
+        httpHeaders: const {
+          'User-Agent': 'Mozilla/5.0 (Linux; Android) MultiServidor/1.0',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+        },
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+      );
+
+      await controller.initialize().timeout(const Duration(seconds: 45));
+
+      final chewie = ChewieController(
+        videoPlayerController: controller,
+        autoPlay: true,
+        looping: false,
+        allowFullScreen: true,
+        allowPlaybackSpeedChanging: true,
+        showControls: true,
+        playbackSpeeds: const [0.5, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0],
+        materialProgressColors: ChewieProgressColors(
+          playedColor: Colors.red,
+          handleColor: Colors.red,
+          backgroundColor: Colors.white24,
+          bufferedColor: Colors.white54,
+        ),
+        errorBuilder: (context, errorMessage) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'Não foi possível reproduzir.\n\n$errorMessage',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ),
+          );
+        },
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _video = controller;
+        _chewie = chewie;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _error =
+            'Falha ao abrir o vídeo.\n\n'
+            'Esse canal pode estar offline, bloqueado ou em formato não suportado pelo player interno.\n\n'
+            'Detalhe técnico:\n$e';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _saveProgress() async {
+    final video = _video;
+
+    if (video == null || !video.value.isInitialized) return;
+
+    await AppStorage.saveWatch(
+      widget.channel,
+      video.value.position,
+      video.value.duration,
+    );
+  }
+
+  @override
+  void dispose() {
+    _saveProgress();
+
+    _chewie?.dispose();
+    _video?.dispose();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(title: Text(widget.channel.title)),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Colors.red),
+              SizedBox(height: 16),
+              Text('Abrindo player...', style: TextStyle(color: Colors.white70)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(title: Text(widget.channel.title)),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(title: Text(widget.channel.title)),
+      body: Center(
+        child: AspectRatio(
+          aspectRatio: _video!.value.aspectRatio <= 0 ? 16 / 9 : _video!.value.aspectRatio,
+          child: Chewie(controller: _chewie!),
+        ),
+      ),
+    );
+  }
+}
+
+==============================
+ANDROID MANIFEST
+==============================
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+        <uses-permission android:name="android.permission.INTERNET"/>
+    <application android:usesCleartextTraffic="true" android:networkSecurityConfig="@xml/network_security_config"
+        android:label="multi_servidor"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
+
+==============================
+NETWORK SECURITY CONFIG
+==============================
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            system
+        </trust-anchors>
+    </base-config>
+</network-security-config>
+
+==============================
+WORKFLOW BUILD
+==============================
+.github/workflows/build.yml não encontrado
+
+==============================
+FLUTTER ANALYZE
+==============================
+Resolving dependencies...
+Downloading packages...
+  chewie 1.13.1 (1.14.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_secure_storage 9.2.4 (10.2.0 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.0 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.1 available)
+  hooks 1.0.2 (1.0.3 available)
+  js 0.6.7 (0.7.2 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.2 available)
+  native_toolchain_c 0.17.6 (0.18.0 available)
+  package_info_plus 9.0.1 (10.1.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  test_api 0.7.10 (0.7.12 available)
+  vector_math 2.2.0 (2.3.0 available)
+  vm_service 15.0.2 (15.2.0 available)
+  wakelock_plus 1.5.2 (1.6.0 available)
+  wakelock_plus_platform_interface 1.5.0 (1.5.1 available)
+  win32 5.15.0 (6.2.0 available)
+  xml 6.6.1 (7.0.1 available)
+Got dependencies!
+23 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing multi-servidor...                                     
+
+warning • The '!' will have no effect because the receiver can't be null • lib/main.dart:326:42 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/main.dart:327:41 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/main.dart:329:33 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/main.dart:330:40 • unnecessary_non_null_assertion
+   info • Statements in an if should be enclosed in a block • lib/main.dart:1210:15 • curly_braces_in_flow_control_structures
+   info • 'WillPopScope' is deprecated and shouldn't be used. Use PopScope instead. The Android predictive back feature will not work with WillPopScope. This feature was deprecated after v3.12.0-1.0.pre • lib/main.dart:1229:12 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/main.dart:1318:39 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/main.dart:1565:7 • curly_braces_in_flow_control_structures
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/series_catalog_page.dart:226:39 • deprecated_member_use
+   info • 'WillPopScope' is deprecated and shouldn't be used. Use PopScope instead. The Android predictive back feature will not work with WillPopScope. This feature was deprecated after v3.12.0-1.0.pre • lib/series_catalog_page.dart:477:12 • deprecated_member_use
+   info • The file name ' m3u_parser.dart' isn't a lower_case_with_underscores identifier • lib/sevices/ m3u_parser.dart:1:1 • file_names
+
+

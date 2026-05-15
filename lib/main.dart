@@ -89,7 +89,7 @@ class PlaylistSource {
         ? customPassword!.trim()
         : loginPass;
 
-    var t = urlTemplate.trim();
+    var t = urlTemplate.trim().replaceAll('&amp;', '&');
 
     if (!t.startsWith('http://') && !t.startsWith('https://')) {
       t = 'http://$t';
@@ -108,7 +108,7 @@ class PlaylistSource {
         .replaceAll('{username}', Uri.encodeComponent(u))
         .replaceAll('{password}', Uri.encodeComponent(p));
 
-    t = t.replaceAll('output=m3u8', 'output=mpegts');
+    t = t.replaceAll('output=mpegts', 'output=mpegts');
 
     return t;
   }
