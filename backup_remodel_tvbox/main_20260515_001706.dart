@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
 part 'series_catalog_page.dart';
-part 'tvbox_layout.dart';
 part 'mini_preview_player.dart';
 
 void main() async {
@@ -1342,23 +1341,7 @@ class _HomePageState extends State<HomePage> {
 
     switch (section) {
       case Section.home:
-        return TvBoxHomePage(
-          sourceName: selectedSource.name,
-          liveCount: liveItems.length,
-          movieCount: movieItems.length,
-          seriesCount: seriesItems.length,
-          extraCount: extraSources.length,
-          highlights: [
-            ...movieItems.take(24),
-            ...seriesItems.take(12),
-          ],
-          onOpenLive: () => setState(() => section = Section.live),
-          onOpenMovies: () => setState(() => section = Section.movies),
-          onOpenSeries: () => setState(() => section = Section.series),
-          onOpenLists: () => setState(() => section = Section.lists),
-          onOpenSettings: () => setState(() => section = Section.settings),
-          onLogout: logout,
-        );
+        return home();
       case Section.live:
         return CatalogPage(
             title: 'Ao Vivo', items: liveItems, mode: CatalogMode.channels);
