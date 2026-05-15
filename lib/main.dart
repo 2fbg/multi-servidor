@@ -117,6 +117,51 @@ class PlaylistSource {
   }
 }
 
+
+
+bool isRestrictedIptvItem(StreamItem item) {
+  final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
+
+  return text.contains('adult') ||
+      text.contains('adulto') ||
+      text.contains('xxx') ||
+      text.contains('[hot]') ||
+      text.contains('hot ') ||
+      text.contains('| hot') ||
+      text.contains('18+') ||
+      text.contains('conteudo restrito') ||
+      text.contains('conteúdo restrito');
+}
+
+bool isProbablyVodGroup(String group) {
+  final g = group
+      .toLowerCase()
+      .replaceAll('♠', '')
+      .replaceAll('♣', '')
+      .replaceAll('♥', '')
+      .replaceAll('♦', '')
+      .trim();
+
+  return g.contains('filme') ||
+      g.contains('movie') ||
+      g.contains('vod') ||
+      g.contains('cinema') ||
+      g.contains('lancamento') ||
+      g.contains('lançamento') ||
+      g.contains('reels') ||
+      g.contains('short') ||
+      g.contains('doramas') ||
+      g.contains('novidades') ||
+      g.contains('ação') ||
+      g.contains('acao') ||
+      g.contains('aventura') ||
+      g.contains('comedia') ||
+      g.contains('comédia') ||
+      g.contains('terror') ||
+      g.contains('suspense') ||
+      g.contains('romance') ||
+      g.contains('drama');
+}
 class StreamItem {
   final String title;
   final String url;
@@ -374,12 +419,20 @@ class M3uService {
         .replaceAll('♦', '')
         .trim();
 
-    bool groupHas(List<String> words) => words.any((w) => g.contains(w));
-    bool groupStarts(List<String> words) => words.any((w) => g.startsWith(w));
+    bool has(List<String> words) => words.any((w) => g.contains(w));
+    bool starts(List<String> words) => words.any((w) => g.startsWith(w));
 
-    // Primeiro respeita categoria da playlist.
-    // Isso evita categoria de filmes aparecer dentro de séries.
-    if (groupStarts([
+    // URL tem prioridade alta.
+    if (u.contains('/movie/') || u.contains('/vod/')) {
+      return ItemKind.movie;
+    }
+
+    if (u.contains('/series/')) {
+      return ItemKind.series;
+    }
+
+    // Grupos de filmes/VOD antes de séries e ao vivo.
+    if (starts([
           'filme',
           'filmes',
           'movie',
@@ -389,17 +442,30 @@ class M3uService {
           'lancamento',
           'lançamento',
         ]) ||
-        groupHas([
+        has([
           'filmes |',
           'filme |',
           'movies |',
           'movie |',
           'vod |',
+          'reels',
+          'short',
+          'doramas',
+          'novidades',
+          'ação',
+          'acao',
+          'aventura',
+          'comedia',
+          'comédia',
+          'terror',
+          'suspense',
+          'romance',
+          'drama',
         ])) {
       return ItemKind.movie;
     }
 
-    if (groupStarts([
+    if (starts([
           'series',
           'séries',
           'serie',
@@ -407,7 +473,7 @@ class M3uService {
           'seriados',
           'novelas',
         ]) ||
-        groupHas([
+        has([
           'series |',
           'séries |',
           'serie |',
@@ -419,27 +485,6 @@ class M3uService {
       return ItemKind.series;
     }
 
-    if (groupStarts([
-      'canais',
-      'canal',
-      'ao vivo',
-      'aovivo',
-      'live',
-      'tv',
-    ])) {
-      return ItemKind.live;
-    }
-
-    // Depois URL Xtream.
-    if (u.contains('/movie/') || u.contains('/vod/')) {
-      return ItemKind.movie;
-    }
-
-    if (u.contains('/series/')) {
-      return ItemKind.series;
-    }
-
-    // Depois padrões no nome.
     final seriesPattern = RegExp(
       r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)',
       caseSensitive: false,
@@ -447,27 +492,6 @@ class M3uService {
 
     if (seriesPattern.hasMatch('$t $g')) {
       return ItemKind.series;
-    }
-
-    if (groupHas([
-      'ação',
-      'acao',
-      'aventura',
-      'comedia',
-      'comédia',
-      'crime',
-      'drama',
-      'terror',
-      'suspense',
-      'romance',
-      'animacao',
-      'animação',
-      'documentario',
-      'documentário',
-      'familia',
-      'família',
-    ])) {
-      return ItemKind.movie;
     }
 
     return ItemKind.live;
@@ -1615,7 +1639,7 @@ class _PlayerPageState extends State<PlayerPage> {
   Future<void> initPlayer() async {
     try {
       final uri = Uri.parse(widget.item.url);
-      video = VideoPlayerController.networkUrl(uri, httpHeaders: iptvHeaders());
+      video = VideoPlayerController.networkUrl(uri, httpHeaders: iptvHeaders(), formatHint: VideoFormat.other);
 
       await video!.initialize().timeout(const Duration(seconds: 60));
 
