@@ -9,6 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
+import 'package:screen_brightness/screen_brightness.dart';
+import 'package:volume_controller/volume_controller.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 part 'series_catalog_page.dart';
 part 'mini_preview_player.dart';
@@ -89,7 +92,7 @@ class PlaylistSource {
         ? customPassword!.trim()
         : loginPass;
 
-    var t = urlTemplate.trim().replaceAll('&amp;', '&');
+    var t = urlTemplate.trim().replaceAll('&', '&');
 
     if (!t.startsWith('http://') && !t.startsWith('https://')) {
       t = 'http://$t';
@@ -504,6 +507,7 @@ class BootPage extends StatefulWidget {
 
 class _BootPageState extends State<BootPage> {
   bool loading = true;
+  bool loggedOut = false;
   String user = '';
   String pass = '';
 
@@ -517,6 +521,7 @@ class _BootPageState extends State<BootPage> {
     final prefs = await SharedPreferences.getInstance();
     user = prefs.getString('login_user') ?? '';
     pass = prefs.getString('login_pass') ?? '';
+    loggedOut = prefs.getBool('logged_out') ?? false;
     setState(() => loading = false);
   }
 
@@ -525,7 +530,11 @@ class _BootPageState extends State<BootPage> {
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (user.isEmpty || pass.isEmpty) return LoginPage(onLogin: boot);
+
+    if (user.isEmpty || pass.isEmpty || loggedOut) {
+      return LoginPage(onLogin: boot);
+    }
+
     return HomePage(user: user, pass: pass, onLogout: boot);
   }
 }
@@ -599,6 +608,7 @@ class _LoginPageState extends State<LoginPage> {
 
       await prefs.setString('login_user', user);
       await prefs.setBool('save_password', savePassword);
+      await prefs.setBool('logged_out', false);
 
       if (savePassword) {
         await prefs.setString('login_pass', pass);
@@ -868,13 +878,12 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    final erase = prefs.getBool('erase_password_on_next_logout') ?? false;
+    final savePassword = prefs.getBool('save_password') ?? true;
 
-    await prefs.remove('login_user');
+    await prefs.setBool('logged_out', true);
 
-    if (erase) {
+    if (!savePassword) {
       await prefs.remove('login_pass');
-      await prefs.remove('erase_password_on_next_logout');
     }
 
     widget.onLogout();
@@ -1166,6 +1175,86 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+
+  Widget homeRail(String title, List<StreamItem> list, IconData icon) {
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        ),
+        SizedBox(
+          height: 190,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: list.length,
+            itemBuilder: (_, i) {
+              final item = list[i];
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => PlayerPage(item: item)),
+                  );
+                },
+                child: Container(
+                  width: 135,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: kPanel,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: item.logo.isNotEmpty
+                            ? Image.network(
+                                item.logo,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Center(child: Icon(icon, size: 52)),
+                              )
+                            : Center(child: Icon(icon, size: 52)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          item.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget homeExtraRails() {
+    return Expanded(
+      child: ListView(
+        padding: const EdgeInsets.all(18),
+        children: [
+          homeRail('🔥 Lançamentos / VOD', movieItems.take(30).toList(), Icons.movie),
+          homeRail('📺 Canais ao vivo', liveItems.take(30).toList(), Icons.live_tv),
+          homeRail('🍿 Séries', seriesItems.take(30).toList(), Icons.video_library),
+        ],
+      ),
+    );
+  }
+
   Widget currentBody() {
     if (loading) {
       return Center(
@@ -1351,7 +1440,14 @@ class _CatalogPageState extends State<CatalogPage> {
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text('${item.group} • ${item.server}',
                     maxLines: 1, overflow: TextOverflow.ellipsis),
-                onTap: () => setState(() => selectedPreviewItem = item),
+                onTap: () {
+                  if (selectedPreviewItem == item) {
+                    openItem(item);
+                  } else {
+                    setState(() => selectedPreviewItem = item);
+                  }
+                },
+                onDoubleTap: () => openItem(item),
                 onLongPress: () => openItem(item),
               );
             },
@@ -1365,32 +1461,9 @@ class _CatalogPageState extends State<CatalogPage> {
                 color: kPanel, borderRadius: BorderRadius.circular(22)),
             child: selected == null
                 ? const Center(child: Text('Nenhum canal'))
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      selected.logo.isNotEmpty
-                          ? Image.network(selected.logo,
-                              height: 110,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.live_tv, size: 90))
-                          : const Icon(Icons.live_tv, size: 90),
-                      const SizedBox(height: 18),
-                      Text(selected.title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Text(selected.group,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white70)),
-                      const SizedBox(height: 20),
-                      FilledButton.icon(
-                        style: FilledButton.styleFrom(backgroundColor: kRed),
-                        onPressed: () => openItem(selected),
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text('Assistir'),
-                      ),
-                    ],
+                : MiniPreviewPlayer(
+                    item: selected,
+                    onOpenFull: () => openItem(selected),
                   ),
           ),
         ),
@@ -1416,7 +1489,14 @@ class _CatalogPageState extends State<CatalogPage> {
             itemBuilder: (_, i) {
               final item = list[i];
               return InkWell(
-                onTap: () => setState(() => selectedPreviewItem = item),
+                onTap: () {
+                  if (selectedPreviewItem == item) {
+                    openItem(item);
+                  } else {
+                    setState(() => selectedPreviewItem = item);
+                  }
+                },
+                onDoubleTap: () => openItem(item),
                 onLongPress: () => openItem(item),
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
@@ -1501,13 +1581,37 @@ class _PlayerPageState extends State<PlayerPage> {
   String? error;
   bool loading = true;
 
+  double volume = 0.5;
+  double brightness = 0.5;
+  String? overlayText;
+
   bool get shouldSaveProgress =>
       widget.item.kind == ItemKind.movie || widget.item.kind == ItemKind.series;
 
   @override
   void initState() {
     super.initState();
+    prepareScreen();
     initPlayer();
+  }
+
+  Future<void> prepareScreen() async {
+    await WakelockPlus.enable();
+
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    try {
+      volume = await VolumeController().getVolume();
+    } catch (_) {}
+
+    try {
+      brightness = await ScreenBrightness().current;
+    } catch (_) {}
   }
 
   Future<void> initPlayer() async {
@@ -1530,29 +1634,24 @@ class _PlayerPageState extends State<PlayerPage> {
         videoPlayerController: video!,
         autoPlay: true,
         looping: false,
+        allowFullScreen: true,
         allowPlaybackSpeedChanging: true,
+        showControls: true,
+        aspectRatio: video!.value.aspectRatio <= 0 ? 16 / 9 : video!.value.aspectRatio,
         playbackSpeeds: const [0.5, 1, 1.25, 1.5, 2, 2.5, 3],
-        errorBuilder: (context, message) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                'Falha ao abrir o vídeo.\n\n'
-                'Possíveis causas: canal offline, bloqueio do servidor, limite de conexão, '
-                'codec 4K/H.265 não suportado pelo aparelho, link expirado ou servidor lento.\n\n'
-                'Tente outro canal da mesma lista. Se só canais 4K falharem, é provável incompatibilidade '
-                'de codec/bitrate do aparelho.\n\n'
-                'Detalhe técnico:\n$message',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-            ),
-          );
-        },
+        deviceOrientationsOnEnterFullScreen: const [
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ],
+        deviceOrientationsAfterFullScreen: const [
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ],
+        systemOverlaysOnEnterFullScreen: const [],
+        systemOverlaysAfterFullScreen: const [],
       );
     } on TimeoutException {
-      error =
-          'Timeout ao iniciar o vídeo. Pode ser canal pesado/4K, servidor lento ou link bloqueado.';
+      error = 'Timeout ao iniciar o vídeo.';
     } catch (e) {
       error = e.toString();
     }
@@ -1561,14 +1660,60 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   Future<void> saveProgress() async {
-    if (!shouldSaveProgress || video == null || !video!.value.isInitialized)
+    if (!shouldSaveProgress || video == null || !video!.value.isInitialized) {
       return;
+    }
+
     final pos = video!.value.position.inMilliseconds;
+
     if (pos > 30000) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('progress_${widget.item.url}', pos);
-      await prefs.setString(
-          'progress_title_${widget.item.url}', widget.item.title);
+      await prefs.setString('progress_title_${widget.item.url}', widget.item.title);
+    }
+  }
+
+  void showOverlay(String text) {
+    setState(() => overlayText = text);
+
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (mounted && overlayText == text) {
+        setState(() => overlayText = null);
+      }
+    });
+  }
+
+  Future<void> adjustVolume(double delta) async {
+    volume = (volume - delta).clamp(0.0, 1.0);
+
+    try {
+      await VolumeController().setVolume(volume);
+    } catch (_) {
+      await video?.setVolume(volume);
+    }
+
+    showOverlay('Volume ${(volume * 100).round()}%');
+  }
+
+  Future<void> adjustBrightness(double delta) async {
+    brightness = (brightness - delta).clamp(0.05, 1.0);
+
+    try {
+      await ScreenBrightness().setScreenBrightness(brightness);
+    } catch (_) {}
+
+    showOverlay('Brilho ${(brightness * 100).round()}%');
+  }
+
+  void handleVerticalDrag(DragUpdateDetails details) {
+    final width = MediaQuery.of(context).size.width;
+    final dx = details.globalPosition.dx;
+    final delta = details.primaryDelta == null ? 0.0 : details.primaryDelta! / 300;
+
+    if (dx < width / 2) {
+      adjustBrightness(delta);
+    } else {
+      adjustVolume(delta);
     }
   }
 
@@ -1577,41 +1722,108 @@ class _PlayerPageState extends State<PlayerPage> {
     saveProgress();
     chewie?.dispose();
     video?.dispose();
+
+    WakelockPlus.disable();
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget content;
+
+    if (loading) {
+      content = const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: kRed),
+          SizedBox(height: 12),
+          Text('Abrindo player...'),
+        ],
+      );
+    } else if (error != null) {
+      content = Padding(
+        padding: const EdgeInsets.all(28),
+        child: Text(
+          'Falha ao abrir o vídeo.\n\nDetalhe técnico:\n$error',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+      );
+    } else {
+      content = SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: video!.value.size.width <= 0 ? 1920 : video!.value.size.width,
+            height: video!.value.size.height <= 0 ? 1080 : video!.value.size.height,
+            child: Chewie(controller: chewie!),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(widget.item.title,
-            maxLines: 1, overflow: TextOverflow.ellipsis),
-      ),
-      body: Center(
-        child: loading
-            ? const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(color: kRed),
-                  SizedBox(height: 12),
-                  Text('Abrindo player...'),
-                ],
-              )
-            : error != null
-                ? Padding(
-                    padding: const EdgeInsets.all(28),
-                    child: Text(
-                      'Falha ao abrir o vídeo.\n\n'
-                      'Possíveis causas: canal offline, bloqueio do servidor, limite de conexão, codec 4K/H.265 não suportado '
-                      'pelo aparelho, link expirado ou servidor demorando demais.\n\n'
-                      'Detalhe técnico:\n$error',
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-                  )
-                : Chewie(controller: chewie!),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onVerticalDragUpdate: handleVerticalDrag,
+        child: Stack(
+          children: [
+            Center(child: content),
+            Positioned(
+              left: 12,
+              top: 12,
+              child: SafeArea(
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
+            if (overlayText != null)
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(.72),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Text(
+                    overlayText!,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            Positioned(
+              left: 16,
+              bottom: 14,
+              child: SafeArea(
+                child: Text(
+                  'Brilho',
+                  style: TextStyle(color: Colors.white.withOpacity(.45)),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 16,
+              bottom: 14,
+              child: SafeArea(
+                child: Text(
+                  'Volume',
+                  style: TextStyle(color: Colors.white.withOpacity(.45)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
