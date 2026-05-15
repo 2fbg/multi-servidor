@@ -530,6 +530,7 @@ class _TvBoxLivePageState extends State<TvBoxLivePage> {
                           onPressed: () => toggleFavorite(item),
                         ),
                         onTap: () => setState(() => selected = item),
+                        onDoubleTap: () => openFullscreen(item),
                         onLongPress: () => openFullscreen(item),
                       );
                     },
