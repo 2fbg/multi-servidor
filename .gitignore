@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Arquivos temporários de diagnóstico/scripts
+diagnostico_repo.txt
+gerar_diagnostico_repo.sh
+fix_final_urls_series_workflow.sh
+corrigir_*.sh
+hotfix_*.sh
+correcao_*.sh
+aplicar_*.sh
+backup_fix_*/
+.ipynb_checkpoints/
+Untitled.ipynb
