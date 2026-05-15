@@ -1447,7 +1447,6 @@ class _CatalogPageState extends State<CatalogPage> {
                     setState(() => selectedPreviewItem = item);
                   }
                 },
-                onDoubleTap: () => openItem(item),
                 onLongPress: () => openItem(item),
               );
             },
@@ -1496,7 +1495,6 @@ class _CatalogPageState extends State<CatalogPage> {
                     setState(() => selectedPreviewItem = item);
                   }
                 },
-                onDoubleTap: () => openItem(item),
                 onLongPress: () => openItem(item),
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
@@ -1606,7 +1604,7 @@ class _PlayerPageState extends State<PlayerPage> {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     try {
-      volume = await VolumeController().getVolume();
+      volume = await VolumeController.instance.getVolume();
     } catch (_) {}
 
     try {
@@ -1687,7 +1685,7 @@ class _PlayerPageState extends State<PlayerPage> {
     volume = (volume - delta).clamp(0.0, 1.0);
 
     try {
-      await VolumeController().setVolume(volume);
+      await VolumeController.instance.setVolume(volume);
     } catch (_) {
       await video?.setVolume(volume);
     }
