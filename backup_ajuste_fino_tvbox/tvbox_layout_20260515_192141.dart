@@ -37,12 +37,12 @@ class TvBoxHomePage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 14),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Container(
-          height: 72,
+          height: 92,
           padding: const EdgeInsets.symmetric(horizontal: 22),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -55,13 +55,13 @@ class TvBoxHomePage extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, size: 34, color: Colors.white),
+              Icon(icon, size: 44, color: Colors.white),
               const SizedBox(width: 22),
               Expanded(
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 30,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
                   ),
@@ -111,11 +111,11 @@ class TvBoxHomePage extends StatelessWidget {
     final list = highlights;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
       child: Row(
         children: [
           SizedBox(
-            width: 390,
+            width: 440,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -178,7 +178,7 @@ class TvBoxHomePage extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 18),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -255,12 +255,21 @@ class TvBoxHomePage extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    const Text(
+                                      'LANÇAMENTO / DESTAQUE',
+                                      style: TextStyle(
+                                        color: Colors.amber,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
                                     Text(
                                       item.title,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                        fontSize: 28,
+                                        fontSize: 34,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -272,7 +281,21 @@ class TvBoxHomePage extends StatelessWidget {
                                       style: const TextStyle(
                                           color: Colors.white70),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 14),
+                                    FilledButton.icon(
+                                      style: FilledButton.styleFrom(
+                                          backgroundColor: kRed),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  TvBoxPlayerPage(item: item)),
+                                        );
+                                      },
+                                      icon: const Icon(Icons.play_arrow),
+                                      label: const Text('Assistir'),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -584,7 +607,7 @@ class _TvBoxLivePreviewState extends State<TvBoxLivePreview> {
       );
 
       controller = c;
-      await c.initialize().timeout(const Duration(seconds: 18));
+      await c.initialize().timeout(const Duration(seconds: 35));
       await c.setVolume(1);
       await c.play();
 
@@ -618,7 +641,7 @@ class _TvBoxLivePreviewState extends State<TvBoxLivePreview> {
           if (widget.item.logo.isNotEmpty)
             Image.network(
               widget.item.logo,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               errorBuilder: (_, __, ___) =>
                   const Icon(Icons.live_tv, size: 100),
             )
@@ -654,11 +677,11 @@ class _TvBoxLivePreviewState extends State<TvBoxLivePreview> {
         child: Column(
           children: [
             Expanded(
-              flex: 8,
+              flex: 6,
               child: SizedBox.expand(child: videoArea()),
             ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
@@ -689,20 +712,25 @@ class _TvBoxLivePreviewState extends State<TvBoxLivePreview> {
                     const Spacer(),
                     Row(
                       children: [
-                        IconButton(
-                          tooltip: 'Favorito',
-                          onPressed: widget.onFavorite,
-                          icon: Icon(
-                            widget.isFavorite ? Icons.star : Icons.star_border,
-                            color: widget.isFavorite
-                                ? Colors.amber
-                                : Colors.white70,
-                          ),
+                        FilledButton(
+                          style: FilledButton.styleFrom(backgroundColor: kRed),
+                          onPressed: widget.onFullscreen,
+                          child: const Text('Tela cheia'),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 12),
+                        FilledButton.icon(
+                          onPressed: widget.onFavorite,
+                          icon: Icon(widget.isFavorite
+                              ? Icons.star
+                              : Icons.star_border),
+                          label: Text(widget.isFavorite
+                              ? 'Favorito'
+                              : 'Adicionar aos favoritos'),
+                        ),
+                        const SizedBox(width: 12),
                         const Text(
-                          'Duplo toque: tela cheia',
-                          style: TextStyle(color: Colors.white54, fontSize: 12),
+                          'Duplo clique no vídeo para expandir',
+                          style: TextStyle(color: Colors.white54),
                         ),
                       ],
                     ),
@@ -730,55 +758,6 @@ class TvBoxSettingsPage extends StatelessWidget {
     required this.onReload,
     required this.onDiagnostics,
   });
-
-  Future<void> showRestrictedLockDialog(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedPin = prefs.getString('restricted_pin') ?? '';
-    final pinCtrl = TextEditingController();
-
-    await showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: kPanel,
-        title: const Text('Bloqueio de conteúdo restrito'),
-        content: TextField(
-          controller: pinCtrl,
-          obscureText: true,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText:
-                savedPin.isEmpty ? 'Criar senha/PIN' : 'Digite a senha/PIN',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await prefs.setBool('restricted_unlocked', false);
-              if (context.mounted) Navigator.pop(context);
-            },
-            child: const Text('Bloquear'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: kRed),
-            onPressed: () async {
-              final pin = pinCtrl.text.trim();
-              if (pin.length < 4) return;
-
-              if (savedPin.isEmpty) {
-                await prefs.setString('restricted_pin', pin);
-                await prefs.setBool('restricted_unlocked', false);
-              } else if (pin == savedPin) {
-                await prefs.setBool('restricted_unlocked', true);
-              }
-
-              if (context.mounted) Navigator.pop(context);
-            },
-            child: Text(savedPin.isEmpty ? 'Salvar' : 'Desbloquear'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget tile(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
@@ -808,11 +787,6 @@ class TvBoxSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final tiles = [
       (Icons.lock_outline, 'Controle dos pais', () {}),
-      (
-        Icons.security,
-        'Bloqueio de conteúdo restrito',
-        () => showRestrictedLockDialog(context)
-      ),
       (Icons.playlist_play, 'Listas', onLists),
       (Icons.language, 'Mudar idioma', () {}),
       (Icons.dashboard_customize, 'Change Layout', () {}),
@@ -908,7 +882,6 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
 
   double appBrightness = 1.0;
   double appVolume = 1.0;
-  double playbackSpeed = 1.0;
   bool showHint = true;
 
   @override
@@ -954,14 +927,6 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
     setState(() {});
   }
 
-  Future<void> cycleSpeed() async {
-    final speeds = [1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
-    final index = speeds.indexOf(playbackSpeed);
-    playbackSpeed = speeds[(index + 1) % speeds.length];
-    await video?.setPlaybackSpeed(playbackSpeed);
-    if (mounted) setState(() {});
-  }
-
   @override
   void dispose() {
     video?.dispose();
@@ -998,7 +963,7 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
               )
             else
               FittedBox(
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 child: SizedBox(
                   width: video!.value.size.width,
                   height: video!.value.size.height,
@@ -1063,6 +1028,26 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                       },
                     ),
                   ],
+                ),
+              ),
+            if (showHint)
+              Positioned(
+                left: 24,
+                bottom: 24,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  color: Colors.black54,
+                  child: Text('Brilho: ${(appBrightness * 100).round()}%'),
+                ),
+              ),
+            if (showHint)
+              Positioned(
+                right: 24,
+                bottom: 24,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  color: Colors.black54,
+                  child: Text('Volume: ${(appVolume * 100).round()}%'),
                 ),
               ),
           ],

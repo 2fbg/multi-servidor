@@ -118,25 +118,6 @@ class PlaylistSource {
   }
 }
 
-bool isHomeMovieHighlight(StreamItem item) {
-  final year = DateTime.now().year.toString();
-  final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
-
-  if (item.kind != ItemKind.movie) return false;
-  if (isRestrictedIptvItem(item)) return false;
-
-  return text.contains(year) ||
-      text.contains('cinema $year') ||
-      text.contains('filmes $year') ||
-      text.contains('filme $year') ||
-      text.contains('lançamento') ||
-      text.contains('lancamento') ||
-      text.contains('lançamentos') ||
-      text.contains('lancamentos') ||
-      text.contains('novidades') ||
-      text.contains('adicionados recentemente');
-}
-
 bool isRestrictedIptvItem(StreamItem item) {
   final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
 
@@ -1049,11 +1030,6 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => setState(() => section = Section.lists),
             ),
             IconButton(
-              tooltip: 'Ajustes',
-              icon: const Icon(Icons.settings),
-              onPressed: () => setState(() => section = Section.settings),
-            ),
-            IconButton(
               tooltip: 'Atualizar lista selecionada',
               icon: const Icon(Icons.refresh),
               onPressed: () =>
@@ -1339,7 +1315,10 @@ class _HomePageState extends State<HomePage> {
           movieCount: movieItems.length,
           seriesCount: seriesItems.length,
           extraCount: extraSources.length,
-          highlights: movieItems.where(isHomeMovieHighlight).take(36).toList(),
+          highlights: movieItems
+              .where((e) => !isRestrictedIptvItem(e))
+              .take(36)
+              .toList(),
           onOpenLive: () => setState(() => section = Section.live),
           onOpenMovies: () => setState(() => section = Section.movies),
           onOpenSeries: () => setState(() => section = Section.series),
@@ -1426,11 +1405,6 @@ class _CatalogPageState extends State<CatalogPage> {
 
   Map<String, int> get groups {
     final map = <String, int>{'Todos': widget.items.length};
-
-    if (widget.mode == CatalogMode.movies ||
-        widget.mode == CatalogMode.series) {
-      map['Continuar assistindo'] = 0;
-    }
     for (final item in widget.items) {
       map[item.group] = (map[item.group] ?? 0) + 1;
     }
