@@ -2129,3 +2129,40 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
+// ===== BLOCO 1 - CLASSIFICAÇÃO SEGURA =====
+
+String _s(dynamic v) => (v ?? '').toString().toLowerCase();
+
+bool _has(String s, List<String> keys) {
+  for (final k in keys) {
+    if (s.contains(k)) return true;
+  }
+  return false;
+}
+
+bool _isRestricted(item) {
+  final s = "${_s(item.title)} ${_s(item.groupTitle)} ${_s(item.url)}";
+  return _has(s, ["xxx", "adult", "18+", "+18"]);
+}
+
+bool _isSeries(item) {
+  final s = "${_s(item.title)} ${_s(item.groupTitle)} ${_s(item.url)}";
+  return _has(s, ["season", "episode", "s01", "s02", "/series/"]);
+}
+
+bool _isMovie(item) {
+  final s = "${_s(item.title)} ${_s(item.groupTitle)} ${_s(item.url)}";
+
+  if (_isSeries(item)) return false;
+
+  return _has(s, ["movie", "filme", "cinema", "vod", "/movie/"]);
+}
+
+bool _isLive(item) {
+  if (_isMovie(item) || _isSeries(item)) return false;
+
+  final s = _s(item.groupTitle);
+  return _has(s, ["tv", "canal", "live", "ao vivo"]) || true;
+}
+
+// ===== FIM BLOCO 1 =====
