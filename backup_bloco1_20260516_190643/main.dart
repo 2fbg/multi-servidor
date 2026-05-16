@@ -144,23 +144,14 @@ bool isCurrentYearMovieHighlight(StreamItem item) {
   if (item.kind != ItemKind.movie) return false;
   if (isRestrictedIptvItem(item)) return false;
 
-  final yearMatches = RegExp(r'\b(19|20)\d{2}\b').allMatches(text);
-  final hasOnlyCurrentYear = yearMatches.isEmpty ||
-      yearMatches.every((m) => m.group(0) == year);
-
-  final isRecent = text.contains(year) ||
+  return text.contains(year) ||
       text.contains('cinema $year') ||
       text.contains('filmes $year') ||
       text.contains('filme $year') ||
-      text.contains('novidades') ||
-      text.contains('adicionados recentemente');
-
-  final hasLaunchWords = text.contains('lançamento') ||
+      text.contains('lançamento') ||
       text.contains('lancamento') ||
       text.contains('lançamentos') ||
       text.contains('lancamentos');
-
-  return hasOnlyCurrentYear && (isRecent || hasLaunchWords);
 }
 
 bool isRestrictedIptvItem(StreamItem item) {
@@ -173,19 +164,8 @@ bool isRestrictedIptvItem(StreamItem item) {
       text.contains('hot ') ||
       text.contains('| hot') ||
       text.contains('18+') ||
-      text.contains('18 anos') ||
-      text.contains('maior de idade') ||
-      text.contains('porn') ||
-      text.contains('sexo') ||
-      text.contains('pornô') ||
-      text.contains('erótico') ||
-      text.contains('erotico') ||
       text.contains('conteudo restrito') ||
       text.contains('conteúdo restrito');
-}
-
-bool isPublicItem(StreamItem item) {
-  return !isRestrictedIptvItem(item);
 }
 
 bool isProbablyVodGroup(String group) {
@@ -473,78 +453,51 @@ class M3uService {
         .replaceAll('♥', '')
         .replaceAll('♦', '')
         .trim();
-    final text = '$t $g $u';
 
-    bool contains(List<String> words) => words.any((w) => text.contains(w));
+    bool has(List<String> words) => words.any((w) => g.contains(w));
+    bool starts(List<String> words) => words.any((w) => g.startsWith(w));
 
-    final seriesWords = [
-      '/series/',
-      '/serie/',
-      'series',
-      'séries',
-      'serie',
-      'série',
-      'seriado',
-      'temporada',
-      'episodio',
-      'episódio',
-      'capitulo',
-      'capítulo',
-      's01',
-      's02',
-      's03',
-      's04',
-      's05',
-      'e01',
-      'e02',
-      'e03',
-      'e04',
-      'ep',
-    ];
+    if (u.contains('/movie/') || u.contains('/vod/')) return ItemKind.movie;
+    if (u.contains('/series/')) return ItemKind.series;
 
-    final movieWords = [
-      '/movie/',
-      '/movies/',
-      '/filme/',
-      '/filmes/',
-      'filme',
-      'filmes',
-      'movie',
-      'movies',
-      'cinema',
-      'vod',
-      'lançamento',
-      'lancamento',
-      'top 10',
-      'ação',
-      'acao',
-      'crime',
-      'guerra',
-      'animação',
-      'animacao',
-      'infantil',
-      'família',
-      'familia',
-      'drama',
-      'comédia',
-      'comedia',
-      'terror',
-      'suspense',
-      'romance',
-      'ficção',
-      'ficcao',
-      'aventura',
-      'documentário',
-      'documentario',
-      'reels',
-      'short',
-      'dorama',
-      'novidades',
-      'lançamentos',
-    ];
+    if (starts(['filme', 'filmes', 'movie', 'movies', 'vod', 'cinema']) ||
+        has([
+          'filmes |',
+          'filme |',
+          'movie |',
+          'movies |',
+          'vod |',
+          'reels',
+          'short',
+          'dorama',
+          'lançamento',
+          'lancamento',
+          'novidade',
+          'comédia',
+          'comedia',
+          'ação',
+          'acao',
+          'aventura',
+          'terror',
+          'suspense',
+          'romance',
+          'drama'
+        ])) {
+      return ItemKind.movie;
+    }
 
-    if (contains(seriesWords)) return ItemKind.series;
-    if (contains(movieWords)) return ItemKind.movie;
+    if (starts(['serie', 'série', 'series', 'séries', 'seriado', 'novela']) ||
+        has([
+          'series |',
+          'séries |',
+          'serie |',
+          'série |',
+          'temporada',
+          'episodio',
+          'episódio'
+        ])) {
+      return ItemKind.series;
+    }
 
     final seriesPattern = RegExp(
       r'(s\d{1,2}\s*e\d{1,3})|(\d{1,2}x\d{1,3})|(temporada)|(epis[oó]dio)',
@@ -953,11 +906,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<StreamItem> get liveItems =>
-      items.where((e) => e.kind == ItemKind.live && !isRestrictedIptvItem(e)).toList();
+      items.where((e) => e.kind == ItemKind.live).toList();
   List<StreamItem> get movieItems =>
-      items.where((e) => e.kind == ItemKind.movie && !isRestrictedIptvItem(e)).toList();
+      items.where((e) => e.kind == ItemKind.movie).toList();
   List<StreamItem> get seriesItems =>
-      items.where((e) => e.kind == ItemKind.series && !isRestrictedIptvItem(e)).toList();
+      items.where((e) => e.kind == ItemKind.series).toList();
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
@@ -1464,39 +1417,13 @@ class _CatalogPageState extends State<CatalogPage> {
   String selectedGroup = 'Todos';
   String query = '';
   StreamItem? selectedPreviewItem;
-  Set<String> continueWatchingUrls = {};
-
-  @override
-  void initState() {
-    super.initState();
-    loadContinueWatching();
-  }
-
-  Future<void> loadContinueWatching() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys();
-    continueWatchingUrls = keys
-        .where((key) => key.startsWith('progress_') &&
-            !key.startsWith('progress_title_'))
-        .map((key) => key.substring(9))
-        .toSet();
-    if (mounted) setState(() {});
-  }
-
-  bool get hasContinueWatching => continueWatchingUrls.isNotEmpty;
-
-  bool isContinueWatching(StreamItem item) {
-    return continueWatchingUrls.contains(item.url);
-  }
 
   Map<String, int> get groups {
     final map = <String, int>{'Todos': widget.items.length};
 
-    if ((widget.mode == CatalogMode.movies ||
-            widget.mode == CatalogMode.series) &&
-        widget.items.any(isContinueWatching)) {
-      map['Continuar assistindo'] =
-          widget.items.where(isContinueWatching).length;
+    if (widget.mode == CatalogMode.movies ||
+        widget.mode == CatalogMode.series) {
+      map['Continuar assistindo'] = 0;
     }
     for (final item in widget.items) {
       map[item.group] = (map[item.group] ?? 0) + 1;
@@ -1512,10 +1439,7 @@ class _CatalogPageState extends State<CatalogPage> {
 
   List<StreamItem> get filtered {
     return widget.items.where((e) {
-      final okGroup = selectedGroup == 'Todos' ||
-          (selectedGroup == 'Continuar assistindo' &&
-              isContinueWatching(e)) ||
-          e.group == selectedGroup;
+      final okGroup = selectedGroup == 'Todos' || e.group == selectedGroup;
       final okQuery = query.trim().isEmpty ||
           e.title.toLowerCase().contains(query.toLowerCase());
       return okGroup && okQuery;
@@ -1526,7 +1450,7 @@ class _CatalogPageState extends State<CatalogPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => PlayerPage(item: item)),
-    ).then((_) => loadContinueWatching());
+    );
   }
 
   Widget groupList() {
@@ -1806,16 +1730,12 @@ class _PlayerPageState extends State<PlayerPage> {
     }
 
     final pos = video!.value.position.inMilliseconds;
-    final duration = video!.value.duration.inMilliseconds;
-    final prefs = await SharedPreferences.getInstance();
 
-    if (pos > 30000 && pos < duration - 30000) {
+    if (pos > 30000) {
+      final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('progress_${widget.item.url}', pos);
       await prefs.setString(
           'progress_title_${widget.item.url}', widget.item.title);
-    } else {
-      await prefs.remove('progress_${widget.item.url}');
-      await prefs.remove('progress_title_${widget.item.url}');
     }
   }
 
@@ -1905,16 +1825,16 @@ class _PlayerPageState extends State<PlayerPage> {
         ),
       );
     } else {
-      content = Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return AspectRatio(
-              aspectRatio: video!.value.aspectRatio <= 0
-                  ? constraints.maxWidth / constraints.maxHeight
-                  : video!.value.aspectRatio,
-              child: Chewie(controller: chewie!),
-            );
-          },
+      content = SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width:
+                video!.value.size.width <= 0 ? 1920 : video!.value.size.width,
+            height:
+                video!.value.size.height <= 0 ? 1080 : video!.value.size.height,
+            child: Chewie(controller: chewie!),
+          ),
         ),
       );
     }
@@ -1954,6 +1874,26 @@ class _PlayerPageState extends State<PlayerPage> {
                   ),
                 ),
               ),
+            Positioned(
+              left: 16,
+              bottom: 14,
+              child: SafeArea(
+                child: Text(
+                  'Brilho',
+                  style: TextStyle(color: Colors.white.withOpacity(.45)),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 16,
+              bottom: 14,
+              child: SafeArea(
+                child: Text(
+                  'Volume',
+                  style: TextStyle(color: Colors.white.withOpacity(.45)),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -2189,40 +2129,3 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
-// ===== BLOCO 1 - CLASSIFICAÇÃO SEGURA =====
-
-String _s(dynamic v) => (v ?? '').toString().toLowerCase();
-
-bool _has(String s, List<String> keys) {
-  for (final k in keys) {
-    if (s.contains(k)) return true;
-  }
-  return false;
-}
-
-bool _isRestricted(item) {
-  final s = "${_s(item.title)} ${_s(item.groupTitle)} ${_s(item.url)}";
-  return _has(s, ["xxx", "adult", "18+", "+18"]);
-}
-
-bool _isSeries(item) {
-  final s = "${_s(item.title)} ${_s(item.groupTitle)} ${_s(item.url)}";
-  return _has(s, ["season", "episode", "s01", "s02", "/series/"]);
-}
-
-bool _isMovie(item) {
-  final s = "${_s(item.title)} ${_s(item.groupTitle)} ${_s(item.url)}";
-
-  if (_isSeries(item)) return false;
-
-  return _has(s, ["movie", "filme", "cinema", "vod", "/movie/"]);
-}
-
-bool _isLive(item) {
-  if (_isMovie(item) || _isSeries(item)) return false;
-
-  final s = _s(item.groupTitle);
-  return _has(s, ["tv", "canal", "live", "ao vivo"]) || true;
-}
-
-// ===== FIM BLOCO 1 =====

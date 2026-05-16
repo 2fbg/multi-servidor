@@ -147,8 +147,7 @@ class TvBoxHomePage extends StatelessWidget {
                               if (item.logo.isNotEmpty)
                                 Image.network(
                                   item.logo,
-                                  fit: BoxFit.contain,
-                                  alignment: Alignment.center,
+                                  fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) {
                                     return const Center(
                                         child: Icon(Icons.movie,
@@ -567,14 +566,7 @@ class _TvBoxLivePreviewState extends State<TvBoxLivePreview> {
       child: SizedBox(
         width: controller!.value.size.width,
         height: controller!.value.size.height,
-        child: Center(
-          child: AspectRatio(
-            aspectRatio: controller!.value.isInitialized
-                ? controller!.value.aspectRatio
-                : 16 / 9,
-            child: VideoPlayer(controller!),
-          ),
-        ),
+        child: VideoPlayer(controller!),
       ),
     );
   }
@@ -917,14 +909,7 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
       child: AspectRatio(
         aspectRatio:
             video!.value.aspectRatio == 0 ? 16 / 9 : video!.value.aspectRatio,
-        child: Center(
-          child: AspectRatio(
-            aspectRatio: video!.value.isInitialized
-                ? video!.value.aspectRatio
-                : 16 / 9,
-            child: VideoPlayer(video!),
-          ),
-        ),
+        child: VideoPlayer(video!),
       ),
     );
   }
@@ -984,26 +969,26 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                 onVerticalDragUpdate: (d) => adjustRight(d.delta.dy),
               ),
             ),
-            Positioned(
-              left: 18,
-              right: 18,
-              top: 16,
-              child: SafeArea(
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 34),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Text(
-                        widget.item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 20),
+            if (showControls)
+              Positioned(
+                left: 18,
+                right: 18,
+                top: 16,
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, size: 34),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                    ),
-                    if (showControls)
+                      Expanded(
+                        child: Text(
+                          widget.item.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
                       TextButton(
                         onPressed: cycleSpeed,
                         child: Text(
@@ -1012,7 +997,6 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                               color: Colors.white, fontSize: 18),
                         ),
                       ),
-                    if (showControls)
                       IconButton(
                         icon: Icon(video?.value.isPlaying == true
                             ? Icons.pause
@@ -1027,10 +1011,10 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                           setState(() {});
                         },
                       ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
             if (showControls)
               Positioned(left: 0, right: 0, bottom: 0, child: progressBar()),
           ],
