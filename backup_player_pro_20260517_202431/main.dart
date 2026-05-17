@@ -1859,7 +1859,7 @@ class _PlayerPageState extends State<PlayerPage> {
       await video?.setVolume(volume);
     }
 
-    //// overlay removido
+    //showOverlay('Volume ${(volume * 100).round()}%');
   }
 
   Future<void> adjustBrightness(double delta) async {
@@ -1869,7 +1869,7 @@ class _PlayerPageState extends State<PlayerPage> {
       await ScreenBrightness().setScreenBrightness(brightness);
     } catch (_) {}
 
-    //// overlay removido
+    //showOverlay('Brilho ${(brightness * 100).round()}%');
   }
 
   void handleVerticalDrag(DragUpdateDetails details) {
@@ -1929,17 +1929,11 @@ class _PlayerPageState extends State<PlayerPage> {
       content = Center(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SizedBox.expand(
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  width: video!.value.size.width,
-                  height: video!.value.size.height, <= 0
+            return AspectRatio(
+              aspectRatio: video!.value.aspectRatio <= 0
                   ? constraints.maxWidth / constraints.maxHeight
                   : video!.value.aspectRatio,
               child: Chewie(controller: chewie!),
-                ),
-              ),
             );
           },
         ),
