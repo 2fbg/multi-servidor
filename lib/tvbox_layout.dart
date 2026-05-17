@@ -147,7 +147,8 @@ class TvBoxHomePage extends StatelessWidget {
                               if (item.logo.isNotEmpty)
                                 Image.network(
                                   item.logo,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.center,
                                   errorBuilder: (_, __, ___) {
                                     return const Center(
                                         child: Icon(Icons.movie,
@@ -969,26 +970,26 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                 onVerticalDragUpdate: (d) => adjustRight(d.delta.dy),
               ),
             ),
-            if (showControls)
-              Positioned(
-                left: 18,
-                right: 18,
-                top: 16,
-                child: SafeArea(
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, size: 34),
-                        onPressed: () => Navigator.pop(context),
+            Positioned(
+              left: 18,
+              right: 18,
+              top: 16,
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, size: 34),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Expanded(
+                      child: Text(
+                        widget.item.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 20),
                       ),
-                      Expanded(
-                        child: Text(
-                          widget.item.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ),
+                    ),
+                    if (showControls)
                       TextButton(
                         onPressed: cycleSpeed,
                         child: Text(
@@ -997,6 +998,7 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                               color: Colors.white, fontSize: 18),
                         ),
                       ),
+                    if (showControls)
                       IconButton(
                         icon: Icon(video?.value.isPlaying == true
                             ? Icons.pause
@@ -1011,10 +1013,10 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
                           setState(() {});
                         },
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
+            ),
             if (showControls)
               Positioned(left: 0, right: 0, bottom: 0, child: progressBar()),
           ],
