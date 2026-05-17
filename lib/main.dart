@@ -163,7 +163,7 @@ bool isCurrentYearMovieHighlight(StreamItem item) {
   return hasOnlyCurrentYear && (isRecent || hasLaunchWords);
 }
 
-//bool isRestrictedIptvItem(StreamItem item) {
+bool isRestrictedIptvItem(StreamItem item) {
   final text = '${item.title} ${item.group} ${item.url}'.toLowerCase();
 
   return text.contains('adult') ||
@@ -432,18 +432,7 @@ class M3uService {
             ? 'Sem categoria'
             : extractAttr(extinf!, 'group-title').trim();
         final logo = extractAttr(extinf!, 'tvg-logo');
-        final kind = 
-String normalizeGroup(String g) {
-  return g
-    .toLowerCase()
-    .replaceAll(RegExp(r'[♠♣♥♦️]'), '')
-    .replaceAll('|', ' ')
-    .replaceAll(RegExp(r'\s+'), ' ')
-    .trim();
-}
-
-
-  classifyItem(title, group, line);
+        final kind = classifyItem(title, group, line);
 
         items.add(StreamItem(
           title: title.isEmpty ? 'Sem nome' : title,
@@ -474,18 +463,7 @@ String normalizeGroup(String g) {
     return extractAttr(line, 'tvg-name').trim();
   }
 
-  static ItemKind 
-String normalizeGroup(String g) {
-  return g
-    .toLowerCase()
-    .replaceAll(RegExp(r'[♠♣♥♦️]'), '')
-    .replaceAll('|', ' ')
-    .replaceAll(RegExp(r'\s+'), ' ')
-    .trim();
-}
-
-
-  classifyItem(String title, String group, String url) {
+  static ItemKind classifyItem(String title, String group, String url) {
     final t = title.toLowerCase();
     final u = url.toLowerCase();
     final g = group

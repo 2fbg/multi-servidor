@@ -899,11 +899,16 @@ class _TvBoxPlayerPageState extends State<TvBoxPlayerPage> {
         widget.item.kind != ItemKind.series) return;
 
     final pos = video!.value.position.inMilliseconds;
-    if (pos > 30000) {
-      final prefs = await SharedPreferences.getInstance();
+    final duration = video!.value.duration.inMilliseconds;
+    final prefs = await SharedPreferences.getInstance();
+
+    if (pos > 30000 && pos < duration - 30000) {
       await prefs.setInt('progress_${widget.item.url}', pos);
       await prefs.setString(
           'progress_title_${widget.item.url}', widget.item.title);
+    } else {
+      await prefs.remove('progress_${widget.item.url}');
+      await prefs.remove('progress_title_${widget.item.url}');
     }
   }
 
