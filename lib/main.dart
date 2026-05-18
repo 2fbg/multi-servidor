@@ -1727,6 +1727,7 @@ class _CatalogPageState extends State<CatalogPage> {
   }
 }
 
+
 class PlayerPage extends StatefulWidget {
   final StreamItem item;
   const PlayerPage({super.key, required this.item});
@@ -1777,8 +1778,11 @@ class _PlayerPageState extends State<PlayerPage> {
   Future<void> initPlayer() async {
     try {
       final uri = Uri.parse(widget.item.url);
-      video = VideoPlayerController.networkUrl(uri,
-          httpHeaders: iptvHeaders(), formatHint: VideoFormat.other);
+      video = VideoPlayerController.networkUrl(
+        uri,
+        httpHeaders: iptvHeaders(),
+        formatHint: VideoFormat.other,
+      );
 
       await video!.initialize().timeout(const Duration(seconds: 60));
 
@@ -1818,7 +1822,9 @@ class _PlayerPageState extends State<PlayerPage> {
       error = e.toString();
     }
 
-    if (mounted) setState(() => loading = false);
+    if (mounted) {
+      setState(() => loading = false);
+    }
   }
 
   Future<void> saveProgress() async {
@@ -1833,7 +1839,9 @@ class _PlayerPageState extends State<PlayerPage> {
     if (pos > 30000 && pos < duration - 30000) {
       await prefs.setInt('progress_${widget.item.url}', pos);
       await prefs.setString(
-          'progress_title_${widget.item.url}', widget.item.title);
+        'progress_title_${widget.item.url}',
+        widget.item.title,
+      );
     } else {
       await prefs.remove('progress_${widget.item.url}');
       await prefs.remove('progress_title_${widget.item.url}');
@@ -1859,7 +1867,8 @@ class _PlayerPageState extends State<PlayerPage> {
       await video?.setVolume(volume);
     }
 
-    //// overlay removido
+    // Se quiser remover o texto visual depois, basta comentar a linha abaixo.
+    showOverlay('Volume ${(volume * 100).round()}%');
   }
 
   Future<void> adjustBrightness(double delta) async {
@@ -1869,7 +1878,8 @@ class _PlayerPageState extends State<PlayerPage> {
       await ScreenBrightness().setScreenBrightness(brightness);
     } catch (_) {}
 
-    //// overlay removido
+    // Se quiser remover o texto visual depois, basta comentar a linha abaixo.
+    showOverlay('Brilho ${(brightness * 100).round()}%');
   }
 
   void handleVerticalDrag(DragUpdateDetails details) {
@@ -1883,6 +1893,52 @@ class _PlayerPageState extends State<PlayerPage> {
     } else {
       adjustVolume(delta);
     }
+  }
+
+  Widget videoWidget() {
+    if (loading) {
+      return const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: kRed),
+          SizedBox(height: 12),
+          Text('Abrindo player...'),
+        ],
+      );
+    }
+
+    if (error != null) {
+      return Padding(
+        padding: const EdgeInsets.all(28),
+        child: Text(
+          'Falha ao abrir o vídeo.\n\nDetalhe técnico:\n$error',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+      );
+    }
+
+    if (video == null || !video!.value.isInitialized || chewie == null) {
+      return const Center(
+        child: Text(
+          'Player indisponível.',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
+    }
+
+    return Center(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return AspectRatio(
+            aspectRatio: video!.value.aspectRatio <= 0
+                ? constraints.maxWidth / constraints.maxHeight
+                : video!.value.aspectRatio,
+            child: Chewie(controller: chewie!),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -1905,47 +1961,6 @@ class _PlayerPageState extends State<PlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content;
-
-    if (loading) {
-      content = const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircularProgressIndicator(color: kRed),
-          SizedBox(height: 12),
-          Text('Abrindo player...'),
-        ],
-      );
-    } else if (error != null) {
-      content = Padding(
-        padding: const EdgeInsets.all(28),
-        child: Text(
-          'Falha ao abrir o vídeo.\n\nDetalhe técnico:\n$error',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white70, fontSize: 16),
-        ),
-      );
-    } else {
-      content = Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SizedBox.expand(
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  width: video!.value.size.width,
-                  height: video!.value.size.height
-                  ? constraints.maxWidth / constraints.maxHeight
-                  : video!.value.aspectRatio,
-              child: Chewie(controller: chewie!),
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
@@ -1953,7 +1968,7 @@ class _PlayerPageState extends State<PlayerPage> {
         onVerticalDragUpdate: handleVerticalDrag,
         child: Stack(
           children: [
-            Center(child: content),
+            Center(child: videoWidget()),
             Positioned(
               left: 12,
               top: 12,
@@ -1977,7 +1992,9 @@ class _PlayerPageState extends State<PlayerPage> {
                   child: Text(
                     overlayText!,
                     style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -1987,6 +2004,7 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 }
+
 
 class ListsPage extends StatefulWidget {
   final List<PlaylistSource> extraSources;
