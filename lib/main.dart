@@ -1934,7 +1934,7 @@ class _PlayerPageState extends State<PlayerPage> {
                 fit: BoxFit.contain,
                 child: SizedBox(
                   width: video!.value.size.width,
-                  height: video!.value.size.height, <= 0
+                  height: video!.value.size.height
                   ? constraints.maxWidth / constraints.maxHeight
                   : video!.value.aspectRatio,
               child: Chewie(controller: chewie!),
