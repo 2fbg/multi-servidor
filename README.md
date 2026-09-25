@@ -1,17 +1,40 @@
-# multi_servidor
+# Multi Servidor
 
-A new Flutter project.
+Aplicativo Android para organizar fontes de streaming que você já possui, com uma experiência mais rápida e consistente para múltiplos servidores.
 
-## Getting Started
+## O que mudou
 
-This project is a starting point for a Flutter application.
+- Home editorial com status real de servidores, itens sincronizados e favoritos.
+- Biblioteca com busca global e filtros para ao vivo, filmes e séries.
+- Importação e sincronização de playlists M3U por URL.
+- Favoritos e histórico persistidos localmente no dispositivo.
+- Player integrado com `expo-video`, tela cheia e picture-in-picture.
+- Interface escura, acessível e responsiva para celular e TV box.
+- Nenhuma fonte de mídia é fornecida pelo aplicativo; o usuário conecta suas próprias playlists autorizadas.
 
-A few resources to get you started if this is your first Flutter project:
+## Stack
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Expo SDK 54, React Native 0.81, Expo Router 6, TypeScript, NativeWind, AsyncStorage e expo-video.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Desenvolvimento
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Para validar o projeto:
+
+```bash
+pnpm check
+pnpm test
+pnpm lint
+```
+
+## Uso
+
+Abra **Ajustes**, informe um nome e a URL de uma playlist M3U acessível pela internet. O Multi Servidor baixa e indexa os itens localmente; depois, use a Biblioteca para pesquisar ou o coração para criar favoritos.
+
+## Privacidade e responsabilidade
+
+As fontes e preferências ficam armazenadas localmente no dispositivo. Use somente conteúdos e servidores para os quais você possui autorização.
