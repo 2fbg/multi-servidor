@@ -19,6 +19,8 @@ export type MediaItem = {
   title: string;
   url: string;
   group: string;
+  category: string;
+  subcategory: string;
   logo?: string;
   kind: MediaKind;
 };
@@ -30,9 +32,16 @@ type CatalogSnapshot = {
   history: string[];
 };
 
+type BulkImportResult = {
+  found: number;
+  added: number;
+  failed: Array<{ name: string; error: string }>;
+};
+
 type CatalogContextValue = CatalogSnapshot & {
   hydrated: boolean;
   addServer: (name: string, playlistUrl: string) => Promise<void>;
+  addServersFromText: (text: string) => Promise<BulkImportResult>;
   syncServer: (serverId: string) => Promise<void>;
   removeServer: (serverId: string) => Promise<void>;
   toggleFavorite: (mediaId: string) => void;
@@ -40,7 +49,7 @@ type CatalogContextValue = CatalogSnapshot & {
   getItem: (mediaId: string) => MediaItem | undefined;
 };
 
-const STORAGE_KEY = "multi-servidor.catalog.v1";
+const STORAGE_KEY = "multi-servidor.catalog.v2";
 const CatalogContext = createContext<CatalogContextValue | null>(null);
 
 function hash(value: string) {
@@ -57,8 +66,19 @@ function createId(value: string) {
 }
 
 function getAttribute(line: string, attribute: string) {
-  const match = line.match(new RegExp(`${attribute}="([^"]*)"`, "i"));
+  const match = line.match(new RegExp(`${attribute}=["']([^"']*)["']`, "i"));
   return match?.[1]?.trim() ?? "";
+}
+
+function splitGroup(group: string) {
+  const parts = group
+    .replace(/\s*(?:»|>|::|\||\\|\/)\s*/g, "|")
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const category = parts[0] || "Sem categoria";
+  const subcategory = parts.slice(1).join(" / ") || "Geral";
+  return { category, subcategory };
 }
 
 function inferKind(title: string, group: string, url: string): MediaKind {
@@ -66,6 +86,52 @@ function inferKind(title: string, group: string, url: string): MediaKind {
   if (/filme|movie|cinema|vod/.test(value)) return "movie";
   if (/série|serie|series|season|temporada/.test(value)) return "series";
   return "live";
+}
+
+function cleanUrl(value: string) {
+  return value.replace(/[),.;!?*_]+$/g, "").trim();
+}
+
+function cleanSourceName(value: string, fallback: string) {
+  const name = value
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/[\*_`]/g, "")
+    .replace(/^\s*[-–—:|]+\s*/, "")
+    .replace(/^\s*(?:link|lista)\s*/i, "")
+    .replace(/\s*\(?m3u(?:_plus)?\)?\s*:?[\s-]*$/i, "")
+    .replace(/^[^\p{L}\p{N}]*/u, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return name || fallback;
+}
+
+function looksLikePlaylist(url: string) {
+  return /(?:get\.php|[?&]type=m3u|\.m3u8?(?:\?|$)|\.ts(?:\?|$))/i.test(url);
+}
+
+export type PlaylistSource = { name: string; url: string };
+
+export function extractPlaylistSources(content: string): PlaylistSource[] {
+  const lines = content.split(/\r?\n/);
+  const sources: PlaylistSource[] = [];
+  const seen = new Set<string>();
+  let sourceNumber = 1;
+
+  lines.forEach((rawLine, index) => {
+    const matches = rawLine.match(/https?:\/\/[^\s<>"'`]+/gi) ?? [];
+    matches.forEach((rawUrl) => {
+      const url = cleanUrl(rawUrl);
+      if (!looksLikePlaylist(url) || seen.has(url)) return;
+      seen.add(url);
+      const sameLineLabel = rawLine.slice(0, rawLine.indexOf(rawUrl));
+      const previousLabel = [...lines.slice(Math.max(0, index - 3), index)].reverse().find((line) => line.trim() && !/https?:\/\//i.test(line)) ?? "";
+      const label = cleanSourceName(sameLineLabel || previousLabel, `Lista ${sourceNumber}`);
+      sources.push({ name: label, url });
+      sourceNumber += 1;
+    });
+  });
+
+  return sources;
 }
 
 export function parseM3U(content: string, serverId: string): MediaItem[] {
@@ -81,19 +147,22 @@ export function parseM3U(content: string, serverId: string): MediaItem[] {
       const commaIndex = line.indexOf(",");
       const fallbackTitle = commaIndex >= 0 ? line.slice(commaIndex + 1).trim() : "Sem título";
       const title = getAttribute(line, "tvg-name") || fallbackTitle || "Sem título";
-      const group = getAttribute(line, "group-title") || "Sem categoria";
+      const group = getAttribute(line, "group-title") || getAttribute(line, "category") || "Sem categoria";
       const logo = getAttribute(line, "tvg-logo");
       metadata = { title, group, ...(logo ? { logo } : {}) };
       continue;
     }
 
     if (metadata && !line.startsWith("#")) {
+      const hierarchy = splitGroup(metadata.group);
       const item: MediaItem = {
         id: createId(`${serverId}:${line}:${metadata.title}`),
         serverId,
         title: metadata.title,
         url: line,
         group: metadata.group,
+        category: hierarchy.category,
+        subcategory: hierarchy.subcategory,
         ...(metadata.logo ? { logo: metadata.logo } : {}),
         kind: inferKind(metadata.title, metadata.group, line),
       };
@@ -145,7 +214,7 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
             const parsed = JSON.parse(stored) as Partial<CatalogSnapshot>;
             setSnapshot({
               servers: parsed.servers ?? [],
-              items: parsed.items ?? [],
+              items: (parsed.items ?? []).map((item) => ({ ...item, category: item.category || item.group || "Sem categoria", subcategory: item.subcategory || "Geral" })),
               favorites: parsed.favorites ?? [],
               history: parsed.history ?? [],
             });
@@ -165,62 +234,62 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     if (hydrated) AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot)).catch(() => undefined);
   }, [hydrated, snapshot]);
 
-  const value = useMemo<CatalogContextValue>(() => ({
-    ...snapshot,
-    hydrated,
-    addServer: async (name, playlistUrl) => {
-      const trimmedUrl = playlistUrl.trim();
+  const value = useMemo<CatalogContextValue>(() => {
+    const syncOne = async (name: string, playlistUrl: string, serverId: string) => {
+      const pending: StreamServer = { id: serverId, name: name.trim() || "Novo servidor", playlistUrl, status: "syncing", itemCount: 0, lastSync: null };
+      setSnapshot((current) => ({ ...current, servers: current.servers.some((server) => server.id === serverId) ? current.servers.map((server) => server.id === serverId ? { ...server, ...pending } : server) : [...current.servers, pending] }));
       try {
-        new URL(trimmedUrl);
-      } catch {
-        throw new Error("Informe uma URL válida para a playlist.");
-      }
-      const serverId = `server-${Date.now().toString(36)}`;
-      const pending: StreamServer = { id: serverId, name: name.trim() || "Novo servidor", playlistUrl: trimmedUrl, status: "syncing", itemCount: 0, lastSync: null };
-      setSnapshot((current) => ({ ...current, servers: [...current.servers, pending] }));
-      try {
-        const items = await fetchPlaylist(trimmedUrl, serverId);
+        const items = await fetchPlaylist(playlistUrl, serverId);
         setSnapshot((current) => ({
           ...current,
           servers: current.servers.map((server) => server.id === serverId ? { ...server, status: "ready", itemCount: items.length, lastSync: new Date().toISOString(), error: undefined } : server),
           items: [...current.items.filter((item) => item.serverId !== serverId), ...items],
         }));
+        return { name, added: true as const };
       } catch (error) {
         const message = error instanceof Error ? error.message : "Não foi possível sincronizar a playlist.";
         setSnapshot((current) => ({ ...current, servers: current.servers.map((server) => server.id === serverId ? { ...server, status: "error", error: message } : server) }));
-        throw new Error(message);
+        return { name, added: false as const, error: message };
       }
-    },
-    syncServer: async (serverId) => {
-      const server = snapshot.servers.find((entry) => entry.id === serverId);
-      if (!server) return;
-      setSnapshot((current) => ({ ...current, servers: current.servers.map((entry) => entry.id === serverId ? { ...entry, status: "syncing", error: undefined } : entry) }));
-      try {
-        const items = await fetchPlaylist(server.playlistUrl, serverId);
-        setSnapshot((current) => ({
-          ...current,
-          servers: current.servers.map((entry) => entry.id === serverId ? { ...entry, status: "ready", itemCount: items.length, lastSync: new Date().toISOString(), error: undefined } : entry),
-          items: [...current.items.filter((item) => item.serverId !== serverId), ...items],
-        }));
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Não foi possível sincronizar a playlist.";
-        setSnapshot((current) => ({ ...current, servers: current.servers.map((entry) => entry.id === serverId ? { ...entry, status: "error", error: message } : entry) }));
-        throw new Error(message);
-      }
-    },
-    removeServer: async (serverId) => {
-      setSnapshot((current) => ({
-        ...current,
-        servers: current.servers.filter((server) => server.id !== serverId),
-        items: current.items.filter((item) => item.serverId !== serverId),
-        favorites: current.favorites.filter((id) => current.items.some((item) => item.id === id && item.serverId !== serverId)),
-        history: current.history.filter((id) => current.items.some((item) => item.id === id && item.serverId !== serverId)),
-      }));
-    },
-    toggleFavorite: (mediaId) => setSnapshot((current) => ({ ...current, favorites: current.favorites.includes(mediaId) ? current.favorites.filter((id) => id !== mediaId) : [mediaId, ...current.favorites] })),
-    markPlayed: (mediaId) => setSnapshot((current) => ({ ...current, history: [mediaId, ...current.history.filter((id) => id !== mediaId)].slice(0, 20) })),
-    getItem: (mediaId) => snapshot.items.find((item) => item.id === mediaId),
-  }), [hydrated, snapshot]);
+    };
+
+    return {
+      ...snapshot,
+      hydrated,
+      addServer: async (name, playlistUrl) => {
+        const trimmedUrl = playlistUrl.trim();
+        try {
+          const parsedUrl = new URL(trimmedUrl);
+          if (!/^https?:$/.test(parsedUrl.protocol)) throw new Error();
+        } catch {
+          throw new Error("Informe uma URL HTTP/HTTPS válida para a playlist.");
+        }
+        const result = await syncOne(name.trim() || "Novo servidor", trimmedUrl, `server-${Date.now().toString(36)}`);
+        if (!result.added) throw new Error(result.error);
+      },
+      addServersFromText: async (text) => {
+        const sources = extractPlaylistSources(text);
+        if (!sources.length) throw new Error("Nenhuma URL de playlist foi encontrada. Cole links M3U, get.php ou playlists completas.");
+        const results = await Promise.all(sources.map((source, index) => syncOne(source.name, source.url, `server-${Date.now().toString(36)}-${index}`)));
+        return {
+          found: sources.length,
+          added: results.filter((result) => result.added).length,
+          failed: results.filter((result): result is { name: string; added: false; error: string } => !result.added).map((result) => ({ name: result.name, error: result.error })),
+        };
+      },
+      syncServer: async (serverId) => {
+        const server = snapshot.servers.find((entry) => entry.id === serverId);
+        if (!server) return;
+        setSnapshot((current) => ({ ...current, servers: current.servers.map((entry) => entry.id === serverId ? { ...entry, status: "syncing", error: undefined } : entry) }));
+        const result = await syncOne(server.name, server.playlistUrl, serverId);
+        if (!result.added) throw new Error(result.error);
+      },
+      removeServer: async (serverId) => setSnapshot((current) => ({ ...current, servers: current.servers.filter((server) => server.id !== serverId), items: current.items.filter((item) => item.serverId !== serverId), favorites: current.favorites.filter((id) => current.items.some((item) => item.id === id && item.serverId !== serverId)), history: current.history.filter((id) => current.items.some((item) => item.id === id && item.serverId !== serverId)) })),
+      toggleFavorite: (mediaId) => setSnapshot((current) => ({ ...current, favorites: current.favorites.includes(mediaId) ? current.favorites.filter((id) => id !== mediaId) : [mediaId, ...current.favorites] })),
+      markPlayed: (mediaId) => setSnapshot((current) => ({ ...current, history: [mediaId, ...current.history.filter((id) => id !== mediaId)].slice(0, 20) })),
+      getItem: (mediaId) => snapshot.items.find((item) => item.id === mediaId),
+    };
+  }, [hydrated, snapshot]);
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;
 }
